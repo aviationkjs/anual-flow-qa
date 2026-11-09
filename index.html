@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>매뉴얼 흐름 Q&amp;A</title>
+<style>
+  :root{
+    --bg:#f4f5f7; --card:#fff; --ink:#1d2330; --sub:#5b6475; --line:#dde1e8;
+    --brand:#1f5fbf; --brand-soft:#e7effb;
+    --warn:#c62828; --warn-soft:#fdeaea; --caut:#b26a00; --caut-soft:#fff3e0;
+    --ok:#2e7d32; --ok-soft:#e8f5e9; --q:#6a3fb5; --q-soft:#f1ebfb;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Pretendard","Malgun Gothic","Apple SD Gothic Neo",sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.55}
+  header{position:sticky;top:0;z-index:20;background:#16213a;color:#fff;padding:10px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  header h1{font-size:17px;margin:0 12px 0 0;font-weight:700}
+  .tabs{display:flex;gap:4px;background:rgba(255,255,255,.08);padding:3px;border-radius:9px}
+  .tabs button{border:0;background:transparent;color:#c9d3e6;padding:6px 12px;border-radius:7px;cursor:pointer;font-size:14px;font-family:inherit}
+  .tabs button.on{background:#fff;color:#16213a;font-weight:700}
+  .badge-n{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:9px;background:var(--warn);color:#fff;font-size:11px;line-height:18px;text-align:center}
+  header select{margin-left:auto;padding:6px 8px;border-radius:7px;border:0;font-family:inherit;max-width:100%}
+  main{max-width:860px;margin:0 auto;padding:16px}
+  .task-head{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+  .task-head h2{margin:0 0 4px;font-size:19px}
+  .meta{color:var(--sub);font-size:13px}
+  .notice{margin-top:10px;font-size:12.5px;background:#fff8e1;border:1px solid #f3dfa0;border-radius:8px;padding:8px 10px;color:#6d5300}
+  a{color:var(--brand)}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;position:relative}
+  .step.warning{border-left:5px solid var(--warn)}
+  .step.caution{border-left:5px solid var(--caut)}
+  .step-top{display:flex;gap:10px;align-items:flex-start}
+  .num{flex:none;width:30px;height:30px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
+  .step h3{margin:2px 0 4px;font-size:16px}
+  .tag{display:inline-block;font-size:11.5px;font-weight:700;padding:1px 7px;border-radius:5px;margin-right:4px;vertical-align:middle}
+  .tag.warning{background:var(--warn-soft);color:var(--warn)}
+  .tag.caution{background:var(--caut-soft);color:var(--caut)}
+  .tag.ref{background:#eef0f4;color:var(--sub);font-weight:500}
+  .body{white-space:pre-wrap}
+  .media{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:10px}
+  .media figure{margin:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fafbfc;position:relative}
+  .media img,.media svg{display:block;width:100%;height:120px;object-fit:cover;cursor:zoom-in}
+  .media svg{object-fit:contain;background:#fff}
+  .media figcaption{font-size:11.5px;color:var(--sub);padding:3px 6px}
+  .media .del{position:absolute;top:4px;right:4px;border:0;background:rgba(0,0,0,.6);color:#fff;border-radius:5px;font-size:11px;padding:2px 6px;cursor:pointer}
+  .row{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;align-items:center}
+  button.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 11px;cursor:pointer;font-size:13.5px;font-family:inherit;color:var(--ink)}
+  button.btn:hover{background:#f2f4f8}
+  button.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+  button.primary:hover{background:#184d9c}
+  button.qbtn{background:var(--q-soft);border-color:#d9c9f3;color:var(--q);font-weight:600}
+  button.okbtn{background:var(--ok);border-color:var(--ok);color:#fff}
+  .supp{margin-top:10px;background:var(--ok-soft);border:1px solid #c5e1c7;border-radius:9px;padding:9px 11px}
+  .supp .lbl{font-size:12px;font-weight:700;color:var(--ok)}
+  .supp .q{font-size:13px;color:var(--sub);margin:2px 0}
+  .pending{margin-top:8px;font-size:12.5px;color:var(--q)}
+  .gap{display:flex;flex-direction:column;align-items:center;padding:4px 0}
+  .gap .line{width:2px;height:12px;background:#c4cad6}
+  .gap button{border:1px dashed #b9a6df;background:transparent;color:var(--q);border-radius:20px;padding:2px 12px;font-size:12px;cursor:pointer;font-family:inherit;opacity:.75}
+  .gap button:hover{opacity:1;background:var(--q-soft)}
+  .gapq{width:100%;background:var(--q-soft);border:1px solid #d9c9f3;border-radius:10px;padding:8px 11px;margin:4px 0;font-size:13.5px}
+  .qitem{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+  .qitem .where{font-size:12.5px;color:var(--sub)}
+  .qitem .text{font-weight:600;margin:4px 0}
+  .score{float:right;text-align:right}
+  .score b{font-size:20px;color:var(--brand)}
+  .score small{display:block;color:var(--sub);font-size:11px}
+  .chips span{display:inline-block;font-size:11.5px;padding:1px 7px;border-radius:5px;background:#eef0f4;color:var(--sub);margin:2px 4px 0 0}
+  .chips span.hot{background:var(--warn-soft);color:var(--warn);font-weight:700}
+  .status{display:inline-block;font-size:11.5px;padding:1px 8px;border-radius:10px;font-weight:700}
+  .st-open{background:var(--q-soft);color:var(--q)} .st-answered{background:#fff3e0;color:var(--caut)}
+  .st-applied{background:var(--ok-soft);color:var(--ok)} .st-manual{background:#eef0f4;color:var(--sub)}
+  .ans{margin-top:8px;border-top:1px dashed var(--line);padding-top:8px;font-size:13.5px}
+  .subtabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+  .subtabs button{border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 12px;cursor:pointer;font-family:inherit;font-size:13px}
+  .subtabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .rule{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:12.5px;color:var(--sub);margin-bottom:12px}
+  textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-family:inherit;font-size:14px}
+  textarea{min-height:80px;resize:vertical}
+  label.f{display:block;font-size:12.5px;font-weight:700;color:var(--sub);margin:10px 0 4px}
+  .modal-bg{position:fixed;inset:0;background:rgba(10,15,30,.55);display:none;align-items:flex-start;justify-content:center;z-index:50;overflow:auto;padding:30px 12px}
+  .modal-bg.show{display:flex}
+  .modal{background:#fff;border-radius:14px;max-width:560px;width:100%;padding:18px}
+  .modal h3{margin:0 0 6px}
+  .similar{background:#faf8fe;border:1px solid #e6dcf6;border-radius:8px;padding:8px 10px;margin-top:8px;font-size:13px}
+  .similar div{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:3px 0}
+  .thumbs{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+  .thumbs img{width:64px;height:64px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+  #lightbox{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:60;cursor:zoom-out;padding:20px}
+  #lightbox.show{display:flex}
+  #lightbox img,#lightbox svg{max-width:95vw;max-height:90vh;background:#fff;border-radius:6px}
+  .empty{color:var(--sub);text-align:center;padding:30px}
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#16213a;color:#fff;padding:9px 16px;border-radius:9px;font-size:13.5px;opacity:0;transition:.25s;z-index:70;pointer-events:none}
+  .toast.show{opacity:1}
+  .admin-step{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:560px){.grid2{grid-template-columns:1fr}header select{margin-left:0;width:100%}}
+</style>
+</head>
+<body>
+<header>
+  <h1>📘 매뉴얼 흐름 Q&amp;A</h1>
+  <div class="tabs" id="roleTabs">
+    <button data-role="tech">정비사</button>
+    <button data-role="sup">감독자<span class="badge-n" id="supBadge"></span></button>
+    <button data-role="admin">관리</button>
+  </div>
+  <select id="taskSel"></select>
+</header>
+<main id="app"></main>
+
+<div class="modal-bg" id="modalBg"><div class="modal" id="modal"></div></div>
+<div id="lightbox"></div>
+<div class="toast" id="toast"></div>
+<input type="file" id="filePick" accept="image/*" multiple hidden>
+
+<script>
+/* ===================== 그림(예시용 자체 제작 SVG) ===================== */
+const ILLU = {
+  plug: `<svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="20" width="90" height="110" rx="8" fill="#eef1f6" stroke="#556" stroke-width="2"/><circle cx="65" cy="80" r="30" fill="#fff" stroke="#556" stroke-width="2"/><circle cx="65" cy="80" r="20" fill="#cfe0f5"/><rect x="170" y="45" width="45" height="60" rx="6" fill="#fff" stroke="#556" stroke-width="2"/><circle cx="185" cy="75" r="4" fill="#556"/><circle cx="200" cy="75" r="4" fill="#556"/><path d="M110 115 C135 115 130 75 150 75" fill="none" stroke="#556" stroke-width="3"/><rect x="142" y="66" width="16" height="18" rx="3" fill="#556"/><path d="M152 55 L165 45 M152 95 L165 105" stroke="#c62828" stroke-width="3"/><text x="120" y="142" font-size="12" text-anchor="middle" fill="#c62828" font-weight="bold">전원 플러그 분리</text></svg>`,
+  cover: `<svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg"><rect x="50" y="10" width="140" height="130" rx="8" fill="#eef1f6" stroke="#556" stroke-width="2"/><circle cx="120" cy="65" r="38" fill="#fff" stroke="#556" stroke-width="2"/><circle cx="120" cy="65" r="26" fill="#cfe0f5"/><rect x="58" y="110" width="124" height="24" rx="3" fill="#dfe4ec" stroke="#556"/><rect x="150" y="112" width="30" height="20" rx="3" fill="#ffd54f" stroke="#b26a00" stroke-width="2"/><path d="M200 140 L182 128" stroke="#b26a00" stroke-width="3" marker-end="url(#a)"/><defs><marker id="a" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="#b26a00"/></marker></defs><text x="120" y="148" font-size="11" text-anchor="middle" fill="#b26a00" font-weight="bold">하단 필터 커버</text></svg>`,
+  drain: `<svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="20" width="120" height="100" rx="6" fill="#eef1f6" stroke="#556" stroke-width="2"/><rect x="95" y="85" width="40" height="30" rx="3" fill="#fff" stroke="#556"/><path d="M110 100 C140 100 150 110 160 118" fill="none" stroke="#556" stroke-width="5" stroke-linecap="round"/><path d="M160 120 q2 8 0 14 M166 122 q2 6 0 10" stroke="#42a5f5" stroke-width="2" fill="none"/><path d="M150 128 h60 l-6 18 h-48z" fill="#e3f2fd" stroke="#556" stroke-width="2"/><path d="M155 136 h50" stroke="#42a5f5" stroke-width="3"/><text x="80" y="142" font-size="11" text-anchor="middle" fill="#1f5fbf" font-weight="bold">용기로 잔수 받기</text></svg>`,
+  cap: `<svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg"><rect x="40" y="25" width="160" height="100" rx="6" fill="#eef1f6" stroke="#556" stroke-width="2"/><circle cx="120" cy="75" r="32" fill="#fff" stroke="#556" stroke-width="3"/><rect x="104" y="68" width="32" height="14" rx="3" fill="#90a4ae"/><path d="M160 50 A45 45 0 0 0 80 50" fill="none" stroke="#c62828" stroke-width="3" marker-end="url(#b)"/><defs><marker id="b" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="#c62828"/></marker></defs><text x="120" y="143" font-size="11" text-anchor="middle" fill="#c62828" font-weight="bold">반시계 방향으로 돌려 분리</text></svg>`,
+  clean: `<svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg"><rect x="60" y="45" width="110" height="40" rx="10" fill="#cfd8dc" stroke="#556" stroke-width="2"/><path d="M70 55 h90 M70 65 h90 M70 75 h90" stroke="#90a4ae" stroke-width="2"/><circle cx="95" cy="62" r="4" fill="#8d6e63"/><circle cx="130" cy="70" r="3" fill="#8d6e63"/><path d="M110 10 v25 M100 15 q10 15 20 0" stroke="#42a5f5" stroke-width="3" fill="none"/><path d="M95 22 q-3 8 0 14 M125 22 q3 8 0 14" stroke="#42a5f5" stroke-width="2" fill="none"/><circle cx="190" cy="110" r="18" fill="#fff" stroke="#556" stroke-width="2"/><path d="M190 96 v28 M176 110 h28 M180 100 l20 20 M200 100 l-20 20" stroke="#78909c" stroke-width="2"/><text x="120" y="140" font-size="11" text-anchor="middle" fill="#1f5fbf" font-weight="bold">필터 세척 · 펌프 날개 확인</text></svg>`,
+  close: `<svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg"><rect x="50" y="10" width="140" height="120" rx="8" fill="#eef1f6" stroke="#556" stroke-width="2"/><circle cx="120" cy="60" r="35" fill="#fff" stroke="#556" stroke-width="2"/><rect x="150" y="102" width="30" height="20" rx="3" fill="#a5d6a7" stroke="#2e7d32" stroke-width="2"/><path d="M80 100 l10 10 l20 -20" stroke="#2e7d32" stroke-width="5" fill="none" stroke-linecap="round"/><text x="120" y="145" font-size="11" text-anchor="middle" fill="#2e7d32" font-weight="bold">조립 후 누수 확인</text></svg>`
+};
+
+/* ===================== 예시 데이터 ===================== */
+const H = 3600e3;
+function demoData(){
+  const now = Date.now();
+  return {
+    role:'tech', taskId:'t1',
+    tasks:[{
+      id:'t1',
+      title:'드럼세탁기 잔여물(배수) 필터 청소',
+      model:'예시: 삼성 드럼세탁기 (구형 모델 기준)',
+      freq:'매뉴얼 권장 주기: 연 2~3회',
+      refs:[
+        {label:'원문 매뉴얼 (Samsung S621, p.12)', url:'https://www.manualslib.com/manual/147723/Samsung-S621.html?page=12'},
+        {label:'원문 매뉴얼 (Samsung Q1235S, p.16)', url:'https://www.manualslib.com/manual/201954/Samsung-Q1235s.html?page=16'}
+      ],
+      steps:[
+        {id:'s1',title:'전원 분리 및 냉각 대기',caution:'warning',ref:'안전 주의사항',illu:'plug',photos:[],
+         body:'전원 플러그를 콘센트에서 뽑는다.\n고온 세탁 직후라면 내부 물이 뜨거우므로 충분히 식은 뒤 작업한다.'},
+        {id:'s2',title:'하단 필터 커버 열기',caution:null,ref:'세탁기 관리 > 잔여물 필터 청소',illu:'cover',photos:[],
+         body:'세탁기 앞면 아래쪽의 필터 커버(베이스 커버)를 연다.\n모델에 따라 동전이나 일자 드라이버로 홈을 눌러 연다.'},
+        {id:'s3',title:'비상 배수로 잔수 빼기',caution:'caution',ref:'비상 배수 방법 참조',illu:'drain',photos:[],
+         body:'바닥에 수건과 납작한 용기를 받친다.\n비상 배수 캡(또는 호스 마개)을 왼쪽으로 돌려 남은 물을 모두 뺀다.\n물이 많으면 용기가 넘치지 않게 여러 번 나눠 받는다.'},
+        {id:'s4',title:'필터 캡 분리',caution:null,ref:'세탁기 관리 > 잔여물 필터 청소',illu:'cap',photos:[],
+         body:'잔수를 다 뺀 뒤 필터 캡을 반시계 방향으로 돌려 빼낸다.'},
+        {id:'s5',title:'필터 세척 및 펌프 확인',caution:null,ref:'세탁기 관리 > 잔여물 필터 청소',illu:'clean',photos:[],
+         body:'필터에 걸린 실밥, 동전, 머리카락 등 이물질을 물로 씻어낸다.\n필터 안쪽의 배수 펌프 날개가 이물질로 막혀 있지 않은지 확인한다.'},
+        {id:'s6',title:'재조립 및 누수 확인',caution:'caution',ref:'세탁기 관리 > 잔여물 필터 청소',illu:'close',photos:[],
+         body:'필터 캡을 시계 방향으로 끝까지 잠그고 비상 배수 마개를 닫은 뒤 커버를 닫는다.\n헹굼 코스를 한 번 돌려 필터 주변에 물이 새지 않는지 확인한다.'}
+      ]
+    }],
+    questions:[
+      {id:'q1',taskId:'t1',stepId:'s3',pos:'on',text:'잔수가 생각보다 많이 나오는데 몇 리터 정도 나오는 게 정상인가요? 용기 크기를 정하고 싶습니다.',author:'정비사 A',stopped:false,metoo:3,createdAt:now-30*H,photos:[],status:'applied',
+       answer:{text:'모델·상황에 따라 다르며 탈수 전에 멈춘 경우 수 리터 이상 나올 수 있음. 넓고 낮은 용기를 쓰고 여러 번 나눠 받을 것.',ref:'비상 배수 방법 참조',by:'감독자',at:now-20*H,photos:[]}},
+      {id:'q2',taskId:'t1',stepId:'s4',pos:'on',text:'필터 캡이 손으로 안 돌아갑니다. 공구 써도 되나요?',author:'정비사 B',stopped:true,metoo:1,createdAt:now-3*H,photos:[],status:'open'},
+      {id:'q3',taskId:'t1',stepId:'s1',pos:'on',text:'고온 세탁 후 얼마나 기다려야 하나요? 기준 시간이 있나요?',author:'정비사 C',stopped:false,metoo:2,createdAt:now-8*H,photos:[],status:'open'},
+      {id:'q4',taskId:'t1',stepId:'s5',pos:'after',text:'펌프 날개에 실이 감겨 있으면 그냥 빼도 되는지, 다른 절차가 있는지 궁금합니다.',author:'정비사 A',stopped:false,metoo:0,createdAt:now-1*H,photos:[],status:'answered',
+       answer:{text:'손으로 빠지면 제거. 날개가 손상됐거나 안 빠지면 작업 중지 후 서비스 의뢰.',ref:'세탁기 관리 > 잔여물 필터 청소',by:'감독자',at:now-0.5*H,photos:[]}}
+    ]
+  };
+}
+
+/* ===================== 저장 ===================== */
+const KEY='manual-flow-qa-v1';
+let S;
+function load(){ try{ const r=localStorage.getItem(KEY); S=r?JSON.parse(r):demoData(); }catch(e){ S=demoData(); } }
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){ toast('저장 공간이 부족합니다. 사진 수를 줄이거나 JSON으로 내보내 주세요.'); } }
+
+/* ===================== 유틸 ===================== */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,9);
+const task=()=>S.tasks.find(t=>t.id===S.taskId)||S.tasks[0];
+const stepOf=(t,id)=>t.steps.find(s=>s.id===id);
+function ago(ts){const m=Math.round((Date.now()-ts)/60000);if(m<60)return m+'분 전';const h=Math.round(m/60);return h<48?h+'시간 전':Math.round(h/24)+'일 전';}
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
+
+/* 사진: 긴 변 1000px로 줄여 JPEG 저장 */
+function readImages(files){
+  return Promise.all([...files].map(f=>new Promise(res=>{
+    const fr=new FileReader();
+    fr.onload=()=>{const img=new Image();img.onload=()=>{
+      const k=Math.min(1,1000/Math.max(img.width,img.height));
+      const c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      res({id:uid(),src:c.toDataURL('image/jpeg',.75),name:f.name});
+    };img.onerror=()=>res(null);img.src=fr.result;};
+    fr.readAsDataURL(f);
+  }))).then(a=>a.filter(Boolean));
+}
+function pickImages(){return new Promise(res=>{const p=$('#filePick');p.value='';p.onchange=()=>readImages(p.files).then(res);p.click();});}
+
+function mediaHTML(photos,illu,opts={}){
+  const items=[];
+  if(illu&&ILLU[illu]) items.push(`<figure><div data-illu="${illu}">${ILLU[illu]}</div><figcaption>예시 그림</figcaption></figure>`);
+  (photos||[]).forEach(p=>items.push(`<figure><img src="${p.src}" data-zoom alt="">${opts.del?`<button class="del" data-delphoto="${p.id}" data-owner="${opts.del}">삭제</button>`:''}<figcaption>${esc(p.name||'사진')}</figcaption></figure>`));
+  return items.length?`<div class="media">${items.join('')}</div>`:'';
+}
+
+/* ===================== 우선순위 점수 ===================== */
+function scoreOf(q){
+  const t=S.tasks.find(x=>x.id===q.taskId); const st=t&&stepOf(t,q.stepId);
+  const safety = st&&st.caution==='warning'?40:st&&st.caution==='caution'?20:0;
+  const stop = q.stopped?40:0;
+  const metoo = Math.min(q.metoo,5)*8;
+  const wait = Math.min(Math.floor((Date.now()-q.createdAt)/H),20);
+  return {total:safety+stop+metoo+wait,safety,stop,metoo,wait};
+}
+
+/* ===================== 렌더 ===================== */
+function render(){
+  document.querySelectorAll('#roleTabs button').forEach(b=>b.classList.toggle('on',b.dataset.role===S.role));
+  const open=S.questions.filter(q=>q.status==='open').length;
+  $('#supBadge').textContent=open||''; $('#supBadge').style.display=open?'inline-block':'none';
+  $('#taskSel').innerHTML=S.tasks.map(t=>`<option value="${t.id}" ${t.id===S.taskId?'selected':''}>${esc(t.title)}</option>`).join('');
+  ({tech:renderTech,sup:renderSup,admin:renderAdmin})[S.role]();
+}
+
+function taskHead(t){
+  return `<div class="task-head"><h2>${esc(t.title)}</h2>
+    <div class="meta">${esc(t.model)} · ${esc(t.freq)}</div>
+    <div class="meta" style="margin-top:4px">${t.refs.map(r=>`<a href="${esc(r.url)}" target="_blank" rel="noopener">📄 ${esc(r.label)}</a>`).join(' &nbsp; ')}</div>
+    <div class="notice">⚠ 단계 내용은 원문 매뉴얼을 요약한 예시이고, 그림은 이해를 돕기 위해 새로 그린 것입니다. 감독자 보충설명은 참고용이며 <b>승인된 작업 기준은 매뉴얼 원문</b>입니다.</div></div>`;
+}
+
+function renderTech(){
+  const t=task(); let h=taskHead(t);
+  t.steps.forEach((s,i)=>{
+    const qs=S.questions.filter(q=>q.taskId===t.id&&q.stepId===s.id);
+    const onApplied=qs.filter(q=>q.pos==='on'&&q.status==='applied');
+    const onPending=qs.filter(q=>q.pos==='on'&&(q.status==='open'||q.status==='answered'));
+    const onManual=qs.filter(q=>q.pos==='on'&&q.status==='manual');
+    h+=`<div class="step ${s.caution||''}">
+      <div class="step-top"><div class="num">${i+1}</div><div style="flex:1">
+        <h3>${s.caution?`<span class="tag ${s.caution}">${s.caution==='warning'?'WARNING':'CAUTION'}</span>`:''}${esc(s.title)}</h3>
+        <div class="body">${esc(s.body)}</div>
+        <div style="margin-top:4px"><span class="tag ref">근거: ${esc(s.ref)}</span></div>
+      </div></div>
+      ${mediaHTML(s.photos,s.illu)}
+      ${onApplied.map(q=>suppHTML(q)).join('')}
+      ${onManual.map(q=>`<div class="supp" style="background:#f3f4f7;border-color:#dfe2e8"><div class="lbl" style="color:var(--sub)">원문 참조 처리</div><div class="q">Q. ${esc(q.text)}</div><div>→ ${esc(q.answer?.ref||'')}</div></div>`).join('')}
+      ${onPending.length?`<div class="pending">🟣 이 단계 질문 ${onPending.length}건 답변 대기: ${onPending.map(q=>`<a href="#" data-metoo="${q.id}">"${esc(q.text.slice(0,22))}…" 나도 궁금(${q.metoo})</a>`).join(', ')}</div>`:''}
+      <div class="row"><button class="btn qbtn" data-ask="${s.id}" data-pos="on">❓ 이 단계에 질문</button></div>
+    </div>`;
+    // 단계 사이 질문
+    const between=qs.filter(q=>q.pos==='after');
+    h+=`<div class="gap"><div class="line"></div>
+      ${between.map(q=>q.status==='applied'?`<div class="gapq" style="background:var(--ok-soft);border-color:#c5e1c7"><b style="color:var(--ok);font-size:12px">단계 사이 보충설명</b><div style="color:var(--sub);font-size:13px">Q. ${esc(q.text)}</div><div>A. ${esc(q.answer.text)} <span class="tag ref">근거: ${esc(q.answer.ref)}</span></div>${mediaHTML(q.answer.photos)}</div>`
+        :q.status==='manual'?'':`<div class="gapq">🟣 <b>사이 질문</b> (${statusLabel(q.status)}) ${esc(q.text)} <a href="#" data-metoo="${q.id}">나도 궁금(${q.metoo})</a></div>`).join('')}
+      ${i<t.steps.length-1?`<button data-ask="${s.id}" data-pos="after">+ ${i+1}↔${i+2} 사이에 질문</button><div class="line"></div>`:''}
+    </div>`;
+  });
+  $('#app').innerHTML=h;
+}
+function suppHTML(q){
+  return `<div class="supp"><div class="lbl">✅ 감독자 보충설명 (참고)</div><div class="q">Q. ${esc(q.text)}</div>
+    <div>A. ${esc(q.answer.text)}</div><div style="margin-top:3px"><span class="tag ref">근거: ${esc(q.answer.ref)}</span><span class="meta">${esc(q.answer.by)} · ${ago(q.answer.at)}</span></div>
+    ${mediaHTML(q.photos)}${mediaHTML(q.answer.photos)}</div>`;
+}
+const statusLabel=s=>({open:'답변 대기',answered:'승인 대기',applied:'흐름 반영',manual:'원문 참조'}[s]);
+
+let supFilter='open';
+function renderSup(){
+  const counts={open:0,answered:0,applied:0,manual:0}; S.questions.forEach(q=>counts[q.status]++);
+  let list=S.questions.filter(q=>q.status===supFilter).map(q=>({q,sc:scoreOf(q)}));
+  list.sort((a,b)=>b.sc.total-a.sc.total);
+  let h=`<div class="subtabs">${['open','answered','applied','manual'].map(k=>`<button data-filter="${k}" class="${k===supFilter?'on':''}">${statusLabel(k)} ${counts[k]}</button>`).join('')}</div>
+  <div class="rule"><b>우선순위 점수</b> = 안전단계(WARNING 40 / CAUTION 20) + 작업 중단 40 + "나도 궁금" 1명당 8(최대 40) + 대기 시간 1시간당 1(최대 20). 점수가 높은 질문부터 위에 표시됩니다.</div>`;
+  if(!list.length) h+=`<div class="empty">해당 상태의 질문이 없습니다.</div>`;
+  list.forEach(({q,sc},idx)=>{
+    const t=S.tasks.find(x=>x.id===q.taskId), si=t.steps.findIndex(s=>s.id===q.stepId), st=t.steps[si];
+    h+=`<div class="qitem">
+      <div class="score"><b>${sc.total}</b><small>${supFilter==='open'?'#'+(idx+1):''}</small></div>
+      <div class="where">${esc(t.title)} · ${q.pos==='on'?`Step ${si+1} ${esc(st.title)}`:`Step ${si+1}↔${si+2} 사이`} · ${esc(q.author)} · ${ago(q.createdAt)} <span class="status st-${q.status}">${statusLabel(q.status)}</span></div>
+      <div class="text">${esc(q.text)}</div>
+      <div class="chips">${sc.safety?`<span class="hot">안전단계 +${sc.safety}</span>`:''}${sc.stop?`<span class="hot">작업 중단 +40</span>`:''}<span>나도 궁금 ${q.metoo}명 +${sc.metoo}</span><span>대기 +${sc.wait}</span></div>
+      ${mediaHTML(q.photos)}
+      ${q.answer?`<div class="ans"><b>답변:</b> ${esc(q.answer.text)}<br><span class="tag ref">근거: ${esc(q.answer.ref)}</span>${mediaHTML(q.answer.photos)}</div>`:''}
+      <div class="row">
+        ${q.status==='open'?`<button class="btn primary" data-answer="${q.id}">답변 작성</button><button class="btn" data-manual="${q.id}">원문 참조로 처리</button>`:''}
+        ${q.status==='answered'?`<button class="btn okbtn" data-apply="${q.id}">흐름에 반영 승인</button><button class="btn" data-answer="${q.id}">답변 수정</button>`:''}
+        ${q.status==='applied'?`<button class="btn" data-unapply="${q.id}">반영 취소</button>`:''}
+      </div></div>`;
+  });
+  $('#app').innerHTML=h;
+}
+
+function renderAdmin(){
+  const t=task();
+  let h=`<div class="task-head"><h2>관리: ${esc(t.title)}</h2><div class="meta">단계 내용과 단계별 사진을 관리합니다. 데이터는 이 브라우저에 저장되며, JSON으로 내보내 다른 PC와 공유할 수 있습니다.</div>
+    <div class="row"><button class="btn" id="expBtn">⬇ JSON 내보내기</button><button class="btn" id="impBtn">⬆ JSON 가져오기</button><button class="btn" id="resetBtn">↺ 예시 데이터로 초기화</button><button class="btn primary" id="addStep">+ 단계 추가</button></div></div>`;
+  t.steps.forEach((s,i)=>{
+    h+=`<div class="admin-step"><div class="grid2">
+      <div><label class="f">Step ${i+1} 제목</label><input type="text" data-edit="title" data-step="${s.id}" value="${esc(s.title)}"></div>
+      <div><label class="f">근거 (매뉴얼 참조)</label><input type="text" data-edit="ref" data-step="${s.id}" value="${esc(s.ref)}"></div></div>
+      <label class="f">내용</label><textarea data-edit="body" data-step="${s.id}">${esc(s.body)}</textarea>
+      <label class="f">주의 등급</label><select data-edit="caution" data-step="${s.id}"><option value="">없음</option><option value="caution" ${s.caution==='caution'?'selected':''}>CAUTION</option><option value="warning" ${s.caution==='warning'?'selected':''}>WARNING</option></select>
+      ${mediaHTML(s.photos,s.illu,{del:s.id})}
+      <div class="row"><button class="btn" data-stepphoto="${s.id}">📷 사진 추가</button>${s.illu?`<button class="btn" data-noillu="${s.id}">예시 그림 숨기기</button>`:''}<button class="btn" data-delstep="${s.id}" style="color:var(--warn)">단계 삭제</button></div>
+    </div>`;
+  });
+  $('#app').innerHTML=h;
+}
+
+/* ===================== 모달 ===================== */
+function openModal(html){$('#modal').innerHTML=html;$('#modalBg').classList.add('show');}
+function closeModal(){$('#modalBg').classList.remove('show');}
+$('#modalBg').addEventListener('click',e=>{if(e.target.id==='modalBg')closeModal();});
+
+let draftPhotos=[];
+function askModal(stepId,pos){
+  const t=task(), i=t.steps.findIndex(s=>s.id===stepId), s=t.steps[i];
+  const where=pos==='on'?`Step ${i+1} · ${s.title}`:`Step ${i+1}↔${i+2} 사이`;
+  const sims=S.questions.filter(q=>q.taskId===t.id&&q.stepId===stepId&&q.pos===pos&&q.status!=='manual');
+  draftPhotos=[];
+  openModal(`<h3>질문하기</h3><div class="meta">위치: <b>${esc(where)}</b></div>
+    ${sims.length?`<div class="similar"><b>이 위치에 이미 있는 질문</b> (같은 내용이면 "나도 궁금"만 눌러 주세요)${sims.map(q=>`<div><span>${esc(q.text)}</span><button class="btn" data-metoo-modal="${q.id}">나도 궁금 ${q.metoo}</button></div>`).join('')}</div>`:''}
+    <label class="f">질문 내용</label><textarea id="qText" placeholder="어디서 막혔는지, 무엇이 헷갈리는지 적어 주세요"></textarea>
+    <div class="grid2"><div><label class="f">작성자</label><input type="text" id="qAuthor" value="${esc(localStorage.getItem('mfqa-author')||'')}" placeholder="이름 또는 사번"></div>
+    <div><label class="f">작업 상태</label><label style="display:flex;gap:6px;align-items:center;margin-top:8px"><input type="checkbox" id="qStop"> 이거 모르면 진행 못 함 (작업 중단)</label></div></div>
+    <label class="f">사진 첨부</label><button class="btn" id="qPhotoBtn">📷 사진 선택</button><div class="thumbs" id="qThumbs"></div>
+    <div class="row" style="justify-content:flex-end"><button class="btn" data-close>취소</button><button class="btn primary" id="qSubmit">질문 등록</button></div>`);
+  $('#qPhotoBtn').onclick=()=>pickImages().then(p=>{draftPhotos.push(...p);$('#qThumbs').innerHTML=draftPhotos.map(x=>`<img src="${x.src}">`).join('');});
+  $('#qSubmit').onclick=()=>{
+    const text=$('#qText').value.trim(); if(!text){toast('질문 내용을 입력해 주세요');return;}
+    const author=$('#qAuthor').value.trim()||'익명'; try{localStorage.setItem('mfqa-author',author);}catch(e){}
+    S.questions.push({id:uid(),taskId:t.id,stepId,pos,text,author,stopped:$('#qStop').checked,metoo:0,createdAt:Date.now(),photos:draftPhotos,status:'open'});
+    save();closeModal();render();toast('질문이 등록되었습니다. 감독자 목록에 올라갑니다.');
+  };
+}
+function answerModal(id){
+  const q=S.questions.find(x=>x.id===id); draftPhotos=q.answer?[...q.answer.photos]:[];
+  openModal(`<h3>답변 작성</h3><div class="meta">Q. ${esc(q.text)}</div>${mediaHTML(q.photos)}
+    <label class="f">답변</label><textarea id="aText">${esc(q.answer?.text||'')}</textarea>
+    <label class="f">근거 매뉴얼 참조 (필수)</label><input type="text" id="aRef" value="${esc(q.answer?.ref||'')}" placeholder="예: 세탁기 관리 > 잔여물 필터 청소">
+    <label class="f">사진 첨부</label><button class="btn" id="aPhotoBtn">📷 사진 선택</button><div class="thumbs" id="aThumbs">${draftPhotos.map(x=>`<img src="${x.src}">`).join('')}</div>
+    <div class="row" style="justify-content:flex-end"><button class="btn" data-close>취소</button><button class="btn primary" id="aSubmit">답변 저장 (승인 대기로)</button></div>`);
+  $('#aPhotoBtn').onclick=()=>pickImages().then(p=>{draftPhotos.push(...p);$('#aThumbs').innerHTML=draftPhotos.map(x=>`<img src="${x.src}">`).join('');});
+  $('#aSubmit').onclick=()=>{
+    const text=$('#aText').value.trim(), ref=$('#aRef').value.trim();
+    if(!text){toast('답변을 입력해 주세요');return;} if(!ref){toast('근거 매뉴얼 참조는 필수입니다');return;}
+    q.answer={text,ref,by:'감독자',at:Date.now(),photos:draftPhotos}; q.status='answered';
+    save();closeModal();supFilter='answered';render();toast('승인 대기로 이동했습니다. 승인하면 흐름에 반영됩니다.');
+  };
+}
+function manualModal(id){
+  const q=S.questions.find(x=>x.id===id);
+  openModal(`<h3>원문 참조로 처리</h3><div class="meta">Q. ${esc(q.text)}</div>
+    <label class="f">참조할 매뉴얼 위치</label><input type="text" id="mRef" placeholder="예: 비상 배수 방법 참조">
+    <div class="row" style="justify-content:flex-end"><button class="btn" data-close>취소</button><button class="btn primary" id="mSubmit">처리</button></div>`);
+  $('#mSubmit').onclick=()=>{const ref=$('#mRef').value.trim(); if(!ref){toast('매뉴얼 위치를 입력해 주세요');return;}
+    q.answer={text:'매뉴얼 원문 참조',ref,by:'감독자',at:Date.now(),photos:[]}; q.status='manual'; save();closeModal();render();};
+}
+
+/* ===================== 이벤트 ===================== */
+document.addEventListener('click',async e=>{
+  const el=e.target.closest('button,a,[data-zoom],[data-illu]'); if(!el) return;
+  const d=el.dataset;
+  if(el.closest('#roleTabs')&&d.role){S.role=d.role;save();render();return;}
+  if(d.close!==undefined){closeModal();return;}
+  if(d.zoom!==undefined){const lb=$('#lightbox');lb.innerHTML=`<img src="${el.src}">`;lb.classList.add('show');return;}
+  if(d.illu){const lb=$('#lightbox');lb.innerHTML=ILLU[d.illu];lb.classList.add('show');return;}
+  if(d.ask){askModal(d.ask,d.pos);return;}
+  if(d.metoo||d.metooModal){e.preventDefault();const q=S.questions.find(x=>x.id===(d.metoo||d.metooModal));q.metoo++;save();if(d.metooModal){el.textContent='나도 궁금 '+q.metoo;el.disabled=true;}else render();toast('"나도 궁금"이 반영되어 우선순위가 올라갑니다');return;}
+  if(d.filter){supFilter=d.filter;render();return;}
+  if(d.answer){answerModal(d.answer);return;}
+  if(d.manual){manualModal(d.manual);return;}
+  if(d.apply){const q=S.questions.find(x=>x.id===d.apply);q.status='applied';save();render();toast('흐름에 반영되었습니다. 정비사 화면 해당 단계에 표시됩니다.');return;}
+  if(d.unapply){const q=S.questions.find(x=>x.id===d.unapply);q.status='answered';save();render();return;}
+  const t=task();
+  if(d.stepphoto){const p=await pickImages();stepOf(t,d.stepphoto).photos.push(...p);save();render();return;}
+  if(d.delphoto){const s=stepOf(t,d.owner);s.photos=s.photos.filter(p=>p.id!==d.delphoto);save();render();return;}
+  if(d.noillu){stepOf(t,d.noillu).illu=null;save();render();return;}
+  if(d.delstep){if(confirmDel()){t.steps=t.steps.filter(s=>s.id!==d.delstep);S.questions=S.questions.filter(q=>q.stepId!==d.delstep);save();render();}return;}
+  if(el.id==='addStep'){t.steps.push({id:uid(),title:'새 단계',body:'',caution:null,ref:'',illu:null,photos:[]});save();render();return;}
+  if(el.id==='expBtn'){const b=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='manual-flow-qa.json';a.click();return;}
+  if(el.id==='impBtn'){const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=()=>{const fr=new FileReader();fr.onload=()=>{try{const d2=JSON.parse(fr.result);if(!d2.tasks)throw 0;S=d2;save();render();toast('가져오기 완료');}catch(_){toast('올바른 JSON 파일이 아닙니다');}};fr.readAsText(i.files[0]);};i.click();return;}
+  if(el.id==='resetBtn'){if(confirmDel('예시 데이터로 되돌리면 지금 데이터가 지워집니다. 계속할까요?')){S=demoData();S.role='admin';save();render();}return;}
+});
+// 확인창 대신 2번 누르기 방식
+let armed=null;
+function confirmDel(msg){const k=msg||'del';if(armed===k){armed=null;return true;}armed=k;toast((msg||'삭제하려면 한 번 더 누르세요')+(msg?' (한 번 더 누르면 실행)':''));setTimeout(()=>{if(armed===k)armed=null;},3000);return false;}
+
+document.addEventListener('change',e=>{
+  const d=e.target.dataset; if(!d.edit) return;
+  const s=stepOf(task(),d.step); s[d.edit]=e.target.value||(d.edit==='caution'?null:''); save(); toast('저장됨');
+});
+$('#taskSel').addEventListener('change',e=>{S.taskId=e.target.value;save();render();});
+$('#lightbox').addEventListener('click',()=>$('#lightbox').classList.remove('show'));
+
+load(); render();
+</script>
+</body>
+</html>
