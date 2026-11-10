@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>매뉴얼 흐름 Q&amp;A</title>
+<script type="importmap">{"imports":{"three":"./vendor/three/three.module.js"}}</script>
 <style>
   :root{
     --bg:#f4f5f7; --card:#fff; --ink:#1d2330; --sub:#5b6475; --line:#dde1e8;
@@ -96,6 +97,53 @@
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   @media(max-width:560px){.grid2{grid-template-columns:1fr}header select{margin-left:0;width:100%}}
 </style>
+<style>
+  /* ---- 3D 뷰어 ---- */
+  .btn3d{background:#e8f1fb;border-color:#bcd3f0;color:#1f5fbf;font-weight:600}
+  #viewerBg{position:fixed;inset:0;background:rgba(10,15,30,.7);display:none;z-index:55;align-items:center;justify-content:center;padding:12px}
+  #viewerBg.show{display:flex}
+  #viewer{background:#fff;border-radius:14px;width:min(980px,100%);height:min(720px,100%);display:flex;flex-direction:column;overflow:hidden}
+  #viewer .vhead{display:flex;gap:8px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  #viewer .vhead b{font-size:15px;margin-right:auto}
+  #vbody{flex:1;display:flex;min-height:0}
+  #vcanvasWrap{flex:1;position:relative;background:linear-gradient(#f7f9fc,#e4e9f1);min-width:0}
+  #vcanvasWrap canvas{display:block;width:100%;height:100%;touch-action:none}
+  #vside{width:270px;border-left:1px solid var(--line);padding:10px 12px;overflow:auto;font-size:13px;display:none}
+  #vside.show{display:block}
+  #vside h4{margin:10px 0 6px;font-size:13px;color:var(--sub)}
+  .vnote{position:absolute;left:10px;bottom:8px;font-size:11.5px;color:#5b6475;background:rgba(255,255,255,.85);padding:3px 8px;border-radius:6px}
+  .vinfo{position:absolute;left:10px;top:8px;font-size:12px;color:#1d2330;background:rgba(255,255,255,.85);padding:3px 8px;border-radius:6px}
+  .vmsg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--sub);padding:20px;pointer-events:none}
+  .pin{position:absolute;transform:translate(-50%,-100%);background:#c62828;color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+  .pin:after{content:"";position:absolute;left:50%;bottom:-5px;margin-left:-5px;border:5px solid transparent;border-bottom:0;border-top-color:#c62828}
+  .pinrow{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px dashed var(--line)}
+  .on-mode{background:#c62828!important;color:#fff!important;border-color:#c62828!important}
+  .drop{border:2px dashed #b9c4d6;border-radius:8px;padding:10px;text-align:center;color:var(--sub);font-size:12.5px;margin-top:6px}
+  .drop.over{background:var(--brand-soft);border-color:var(--brand)}
+  @media(max-width:700px){#vbody{flex-direction:column}#vside{width:auto;border-left:0;border-top:1px solid var(--line);max-height:42%}}
+  /* ---- 챗봇 ---- */
+  #chatFab{position:fixed;right:18px;bottom:18px;z-index:40;border:0;border-radius:28px;background:#16213a;color:#fff;padding:12px 18px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25);font-family:inherit}
+  #chat{position:fixed;right:18px;bottom:78px;z-index:45;width:min(400px,calc(100vw - 24px));height:min(560px,calc(100vh - 110px));background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.2);display:none;flex-direction:column;overflow:hidden}
+  #chat.show{display:flex}
+  #chat .chead{background:#16213a;color:#fff;padding:10px 12px;display:flex;align-items:center;gap:8px}
+  #chat .chead b{margin-right:auto}
+  #chat .chead button{background:transparent;border:0;color:#fff;font-size:18px;cursor:pointer}
+  #chat .cwarn{font-size:11.5px;background:#fff8e1;color:#6d5300;padding:5px 10px;border-bottom:1px solid #f3dfa0}
+  #chatLog{flex:1;overflow:auto;padding:10px;background:#f7f8fa;display:flex;flex-direction:column;gap:8px}
+  .bub{max-width:88%;padding:8px 11px;border-radius:12px;font-size:13.5px;white-space:pre-wrap}
+  .bub.me{align-self:flex-end;background:var(--brand);color:#fff;border-bottom-right-radius:4px}
+  .bub.bot{align-self:flex-start;background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px}
+  .hit{border:1px solid var(--line);border-radius:9px;padding:7px 9px;margin-top:6px;background:#fafbfc;white-space:normal}
+  .hit .ht{font-weight:700;color:var(--brand);cursor:pointer;text-decoration:underline}
+  .hit .hs{color:var(--sub);font-size:12.5px;margin-top:2px}
+  .hit .hq{font-size:12.5px;margin-top:4px;background:var(--ok-soft);border-radius:6px;padding:4px 6px}
+  .hit .hw{font-size:12px;font-weight:700;color:var(--warn);margin-bottom:2px}
+  .cmini{font-size:12px;padding:3px 9px;margin:6px 4px 0 0}
+  #chatForm{display:flex;gap:6px;padding:8px;border-top:1px solid var(--line)}
+  #chatForm input{flex:1}
+  .flash{animation:flash 1.6s ease 1}
+  @keyframes flash{0%,100%{box-shadow:none}30%{box-shadow:0 0 0 4px #ffd54f}}
+</style>
 </head>
 <body>
 <header>
@@ -114,6 +162,31 @@
 <div class="toast" id="toast"></div>
 <input type="file" id="filePick" accept="image/*" multiple hidden>
 
+<!-- 3D 뷰어 -->
+<div id="viewerBg"><div id="viewer">
+  <div class="vhead">
+    <b id="vTitle">3D 도면</b>
+    <button class="btn" id="vReset">처음 시점</button>
+    <button class="btn" id="vWire">와이어프레임</button>
+    <button class="btn" id="vFull">전체화면</button>
+    <button class="btn" id="vClose">닫기 ✕</button>
+  </div>
+  <div id="vbody">
+    <div id="vcanvasWrap"><div class="vinfo" id="vInfo"></div><div class="vmsg" id="vMsg"></div><div id="vPins"></div>
+      <div class="vnote">참고용 형상입니다. 치수와 작업 기준은 매뉴얼 원문을 따르세요. · 드래그: 회전 · 휠/두 손가락: 확대 · 우클릭/세 손가락: 이동</div></div>
+    <div id="vside"></div>
+  </div>
+</div></div>
+
+<!-- 챗봇 -->
+<button id="chatFab">💬 매뉴얼 챗봇</button>
+<div id="chat">
+  <div class="chead"><b>💬 매뉴얼 챗봇</b><button id="chatClose" title="닫기">✕</button></div>
+  <div class="cwarn">등록된 매뉴얼과 승인된 보충설명에서만 찾아 답합니다. 작업 기준은 매뉴얼 원문입니다.</div>
+  <div id="chatLog"></div>
+  <form id="chatForm"><input type="text" id="chatIn" placeholder="예: 필터 캡이 안 돌아가요" autocomplete="off"><button class="btn primary">보내기</button></form>
+</div>
+
 <script>
 /* ===================== 그림(예시용 자체 제작 SVG) ===================== */
 const ILLU = {
@@ -125,52 +198,45 @@ const ILLU = {
   close: `<svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg"><rect x="50" y="10" width="140" height="120" rx="8" fill="#eef1f6" stroke="#556" stroke-width="2"/><circle cx="120" cy="60" r="35" fill="#fff" stroke="#556" stroke-width="2"/><rect x="150" y="102" width="30" height="20" rx="3" fill="#a5d6a7" stroke="#2e7d32" stroke-width="2"/><path d="M80 100 l10 10 l20 -20" stroke="#2e7d32" stroke-width="5" fill="none" stroke-linecap="round"/><text x="120" y="145" font-size="11" text-anchor="middle" fill="#2e7d32" font-weight="bold">조립 후 누수 확인</text></svg>`
 };
 
-/* ===================== 예시 데이터 ===================== */
+/* ===================== 기본 데이터 (파일을 못 읽을 때 사용) ===================== */
 const H = 3600e3;
-function demoData(){
-  const now = Date.now();
-  return {
-    role:'tech', taskId:'t1',
-    tasks:[{
-      id:'t1',
-      title:'드럼세탁기 잔여물(배수) 필터 청소',
-      model:'예시: 삼성 드럼세탁기 (구형 모델 기준)',
-      freq:'매뉴얼 권장 주기: 연 2~3회',
-      refs:[
-        {label:'원문 매뉴얼 (Samsung S621, p.12)', url:'https://www.manualslib.com/manual/147723/Samsung-S621.html?page=12'},
-        {label:'원문 매뉴얼 (Samsung Q1235S, p.16)', url:'https://www.manualslib.com/manual/201954/Samsung-Q1235s.html?page=16'}
-      ],
-      steps:[
-        {id:'s1',title:'전원 분리 및 냉각 대기',caution:'warning',ref:'안전 주의사항',illu:'plug',photos:[],
-         body:'전원 플러그를 콘센트에서 뽑는다.\n고온 세탁 직후라면 내부 물이 뜨거우므로 충분히 식은 뒤 작업한다.'},
-        {id:'s2',title:'하단 필터 커버 열기',caution:null,ref:'세탁기 관리 > 잔여물 필터 청소',illu:'cover',photos:[],
-         body:'세탁기 앞면 아래쪽의 필터 커버(베이스 커버)를 연다.\n모델에 따라 동전이나 일자 드라이버로 홈을 눌러 연다.'},
-        {id:'s3',title:'비상 배수로 잔수 빼기',caution:'caution',ref:'비상 배수 방법 참조',illu:'drain',photos:[],
-         body:'바닥에 수건과 납작한 용기를 받친다.\n비상 배수 캡(또는 호스 마개)을 왼쪽으로 돌려 남은 물을 모두 뺀다.\n물이 많으면 용기가 넘치지 않게 여러 번 나눠 받는다.'},
-        {id:'s4',title:'필터 캡 분리',caution:null,ref:'세탁기 관리 > 잔여물 필터 청소',illu:'cap',photos:[],
-         body:'잔수를 다 뺀 뒤 필터 캡을 반시계 방향으로 돌려 빼낸다.'},
-        {id:'s5',title:'필터 세척 및 펌프 확인',caution:null,ref:'세탁기 관리 > 잔여물 필터 청소',illu:'clean',photos:[],
-         body:'필터에 걸린 실밥, 동전, 머리카락 등 이물질을 물로 씻어낸다.\n필터 안쪽의 배수 펌프 날개가 이물질로 막혀 있지 않은지 확인한다.'},
-        {id:'s6',title:'재조립 및 누수 확인',caution:'caution',ref:'세탁기 관리 > 잔여물 필터 청소',illu:'close',photos:[],
-         body:'필터 캡을 시계 방향으로 끝까지 잠그고 비상 배수 마개를 닫은 뒤 커버를 닫는다.\n헹굼 코스를 한 번 돌려 필터 주변에 물이 새지 않는지 확인한다.'}
-      ]
-    }],
-    questions:[
-      {id:'q1',taskId:'t1',stepId:'s3',pos:'on',text:'잔수가 생각보다 많이 나오는데 몇 리터 정도 나오는 게 정상인가요? 용기 크기를 정하고 싶습니다.',author:'정비사 A',stopped:false,metoo:3,createdAt:now-30*H,photos:[],status:'applied',
-       answer:{text:'모델·상황에 따라 다르며 탈수 전에 멈춘 경우 수 리터 이상 나올 수 있음. 넓고 낮은 용기를 쓰고 여러 번 나눠 받을 것.',ref:'비상 배수 방법 참조',by:'감독자',at:now-20*H,photos:[]}},
-      {id:'q2',taskId:'t1',stepId:'s4',pos:'on',text:'필터 캡이 손으로 안 돌아갑니다. 공구 써도 되나요?',author:'정비사 B',stopped:true,metoo:1,createdAt:now-3*H,photos:[],status:'open'},
-      {id:'q3',taskId:'t1',stepId:'s1',pos:'on',text:'고온 세탁 후 얼마나 기다려야 하나요? 기준 시간이 있나요?',author:'정비사 C',stopped:false,metoo:2,createdAt:now-8*H,photos:[],status:'open'},
-      {id:'q4',taskId:'t1',stepId:'s5',pos:'after',text:'펌프 날개에 실이 감겨 있으면 그냥 빼도 되는지, 다른 절차가 있는지 궁금합니다.',author:'정비사 A',stopped:false,metoo:0,createdAt:now-1*H,photos:[],status:'answered',
-       answer:{text:'손으로 빠지면 제거. 날개가 손상됐거나 안 빠지면 작업 중지 후 서비스 의뢰.',ref:'세탁기 관리 > 잔여물 필터 청소',by:'감독자',at:now-0.5*H,photos:[]}}
-    ]
-  };
+const FALLBACK_TASKS = [{"id": "t1", "title": "드럼세탁기 잔여물(배수) 필터 청소", "model": "예시: 삼성 드럼세탁기 (구형 모델 기준)", "freq": "매뉴얼 권장 주기: 연 2~3회", "refs": [{"label": "원문 매뉴얼 (Samsung S621, p.12)", "url": "https://www.manualslib.com/manual/147723/Samsung-S621.html?page=12"}, {"label": "원문 매뉴얼 (Samsung Q1235S, p.16)", "url": "https://www.manualslib.com/manual/201954/Samsung-Q1235s.html?page=16"}], "steps": [{"id": "s1", "title": "전원 분리 및 냉각 대기", "caution": "warning", "ref": "안전 주의사항", "illu": "plug", "photos": [], "body": "전원 플러그를 콘센트에서 뽑는다.\n고온 세탁 직후라면 내부 물이 뜨거우므로 충분히 식은 뒤 작업한다."}, {"id": "s2", "title": "하단 필터 커버 열기", "caution": null, "ref": "세탁기 관리 > 잔여물 필터 청소", "illu": "cover", "photos": [], "body": "세탁기 앞면 아래쪽의 필터 커버(베이스 커버)를 연다.\n모델에 따라 동전이나 일자 드라이버로 홈을 눌러 연다."}, {"id": "s3", "title": "비상 배수로 잔수 빼기", "caution": "caution", "ref": "비상 배수 방법 참조", "illu": "drain", "photos": [], "body": "바닥에 수건과 납작한 용기를 받친다.\n비상 배수 캡(또는 호스 마개)을 왼쪽으로 돌려 남은 물을 모두 뺀다.\n물이 많으면 용기가 넘치지 않게 여러 번 나눠 받는다."}, {"id": "s4", "title": "필터 캡 분리", "caution": null, "ref": "세탁기 관리 > 잔여물 필터 청소", "illu": "cap", "photos": [], "body": "잔수를 다 뺀 뒤 필터 캡을 반시계 방향으로 돌려 빼낸다."}, {"id": "s5", "title": "필터 세척 및 펌프 확인", "caution": null, "ref": "세탁기 관리 > 잔여물 필터 청소", "illu": "clean", "photos": [], "body": "필터에 걸린 실밥, 동전, 머리카락 등 이물질을 물로 씻어낸다.\n필터 안쪽의 배수 펌프 날개가 이물질로 막혀 있지 않은지 확인한다."}, {"id": "s6", "title": "재조립 및 누수 확인", "caution": "caution", "ref": "세탁기 관리 > 잔여물 필터 청소", "illu": "close", "photos": [], "body": "필터 캡을 시계 방향으로 끝까지 잠그고 비상 배수 마개를 닫은 뒤 커버를 닫는다.\n헹굼 코스를 한 번 돌려 필터 주변에 물이 새지 않는지 확인한다."}]}];
+const FALLBACK_SYN = [["필터 캡", "필터 마개", "캡", "마개", "뚜껑"], ["잔수", "남은 물", "물", "배수", "물빼기"], ["커버", "덮개", "베이스 커버", "하단 커버"], ["전원", "플러그", "코드", "콘센트"], ["누수", "물 샘", "새다", "샌다", "새요"], ["펌프", "날개", "프로펠러", "임펠러"], ["공구", "드라이버", "도구", "동전"], ["세척", "청소", "씻기", "닦기"], ["분리", "빼기", "탈거", "풀기"], ["조립", "장착", "잠그기", "끼우기"], ["안 돌아", "안돌아", "꽉 끼", "빡빡", "안 열려", "안열려"], ["뜨거", "고온", "온도", "식"]];
+function demoQuestions(){
+  const now=Date.now();
+  return [
+    {id:'q1',taskId:'t1',stepId:'s3',pos:'on',text:'잔수가 생각보다 많이 나오는데 몇 리터 정도 나오는 게 정상인가요? 용기 크기를 정하고 싶습니다.',author:'정비사 A',stopped:false,metoo:3,createdAt:now-30*H,photos:[],status:'applied',
+     answer:{text:'모델·상황에 따라 다르며 탈수 전에 멈춘 경우 수 리터 이상 나올 수 있음. 넓고 낮은 용기를 쓰고 여러 번 나눠 받을 것.',ref:'비상 배수 방법 참조',by:'감독자',at:now-20*H,photos:[]}},
+    {id:'q2',taskId:'t1',stepId:'s4',pos:'on',text:'필터 캡이 손으로 안 돌아갑니다. 공구 써도 되나요?',author:'정비사 B',stopped:true,metoo:1,createdAt:now-3*H,photos:[],status:'open'},
+    {id:'q3',taskId:'t1',stepId:'s1',pos:'on',text:'고온 세탁 후 얼마나 기다려야 하나요? 기준 시간이 있나요?',author:'정비사 C',stopped:false,metoo:2,createdAt:now-8*H,photos:[],status:'open'},
+    {id:'q4',taskId:'t1',stepId:'s5',pos:'after',text:'펌프 날개에 실이 감겨 있으면 그냥 빼도 되는지, 다른 절차가 있는지 궁금합니다.',author:'정비사 A',stopped:false,metoo:0,createdAt:now-1*H,photos:[],status:'answered',
+     answer:{text:'손으로 빠지면 제거. 날개가 손상됐거나 안 빠지면 작업 중지 후 서비스 의뢰.',ref:'세탁기 관리 > 잔여물 필터 청소',by:'감독자',at:now-0.5*H,photos:[]}}
+  ];
 }
 
 /* ===================== 저장 ===================== */
-const KEY='manual-flow-qa-v1';
-let S;
-function load(){ try{ const r=localStorage.getItem(KEY); S=r?JSON.parse(r):demoData(); }catch(e){ S=demoData(); } }
+const KEY='manual-flow-qa-v2';
+let S, FILE_TASKS=null, SYN=FALLBACK_SYN, REPO_MODELS=[], FILE_LINKS=[], LOCAL_MODELS=[];
+const clone=o=>JSON.parse(JSON.stringify(o));
 function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){ toast('저장 공간이 부족합니다. 사진 수를 줄이거나 JSON으로 내보내 주세요.'); } }
+async function getJSON(url){ const r=await fetch(url,{cache:'no-cache'}); if(!r.ok) throw new Error(r.status); return r.json(); }
+async function boot(){
+  try{ FILE_TASKS=(await getJSON('data/manual.json')).tasks; }catch(e){ FILE_TASKS=null; }
+  try{ SYN=(await getJSON('data/synonyms.json')).groups; }catch(e){}
+  try{ const m=await getJSON('models/models.json'); REPO_MODELS=m.models||[]; FILE_LINKS=m.links||[]; }catch(e){}
+  try{ LOCAL_MODELS=await idbAll(); }catch(e){ LOCAL_MODELS=[]; }
+  let saved=null; try{ saved=JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){}
+  S = saved || {role:'tech',taskId:'t1',tasks:clone(FILE_TASKS||FALLBACK_TASKS),questions:demoQuestions(),linkEdits:{}};
+  S.linkEdits=S.linkEdits||{};
+  render();
+}
+
+/* ===================== IndexedDB (브라우저에 올린 STL) ===================== */
+function idb(){return new Promise((res,rej)=>{const r=indexedDB.open('mfqa-stl',1);r.onupgradeneeded=()=>r.result.createObjectStore('stl',{keyPath:'id'});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+async function idbPut(rec){const db=await idb();return new Promise((res,rej)=>{const t=db.transaction('stl','readwrite');t.objectStore('stl').put(rec);t.oncomplete=res;t.onerror=()=>rej(t.error);});}
+async function idbGet(id){const db=await idb();return new Promise((res,rej)=>{const q=db.transaction('stl').objectStore('stl').get(id);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error);});}
+async function idbDel(id){const db=await idb();return new Promise((res,rej)=>{const t=db.transaction('stl','readwrite');t.objectStore('stl').delete(id);t.oncomplete=res;t.onerror=()=>rej(t.error);});}
+async function idbAll(){const db=await idb();return new Promise((res,rej)=>{const q=db.transaction('stl').objectStore('stl').getAll();q.onsuccess=()=>res(q.result.map(r=>({id:r.id,name:r.name,file:r.fileName,local:true,size:r.data.byteLength})));q.onerror=()=>rej(q.error);});}
 
 /* ===================== 유틸 ===================== */
 const $=s=>document.querySelector(s);
@@ -179,9 +245,17 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const task=()=>S.tasks.find(t=>t.id===S.taskId)||S.tasks[0];
 const stepOf=(t,id)=>t.steps.find(s=>s.id===id);
 function ago(ts){const m=Math.round((Date.now()-ts)/60000);if(m<60)return m+'분 전';const h=Math.round(m/60);return h<48?h+'시간 전':Math.round(h/24)+'일 전';}
-function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2400);}
+const allModels=()=>[...REPO_MODELS,...LOCAL_MODELS];
+const modelById=id=>allModels().find(m=>m.id===id);
+const linkKey=(tid,sid)=>tid+'|'+sid;
+function linkFor(tid,sid){
+  const k=linkKey(tid,sid);
+  if(S.linkEdits[k]!==undefined) return S.linkEdits[k];
+  return FILE_LINKS.find(l=>l.task===tid&&l.step===sid)||null;
+}
+function hasModels(tid,sid){const l=linkFor(tid,sid);return !!(l&&l.models&&l.models.some(id=>modelById(id)));}
 
-/* 사진: 긴 변 1000px로 줄여 JPEG 저장 */
 function readImages(files){
   return Promise.all([...files].map(f=>new Promise(res=>{
     const fr=new FileReader();
@@ -195,7 +269,6 @@ function readImages(files){
   }))).then(a=>a.filter(Boolean));
 }
 function pickImages(){return new Promise(res=>{const p=$('#filePick');p.value='';p.onchange=()=>readImages(p.files).then(res);p.click();});}
-
 function mediaHTML(photos,illu,opts={}){
   const items=[];
   if(illu&&ILLU[illu]) items.push(`<figure><div data-illu="${illu}">${ILLU[illu]}</div><figcaption>예시 그림</figcaption></figure>`);
@@ -221,14 +294,12 @@ function render(){
   $('#taskSel').innerHTML=S.tasks.map(t=>`<option value="${t.id}" ${t.id===S.taskId?'selected':''}>${esc(t.title)}</option>`).join('');
   ({tech:renderTech,sup:renderSup,admin:renderAdmin})[S.role]();
 }
-
 function taskHead(t){
   return `<div class="task-head"><h2>${esc(t.title)}</h2>
     <div class="meta">${esc(t.model)} · ${esc(t.freq)}</div>
-    <div class="meta" style="margin-top:4px">${t.refs.map(r=>`<a href="${esc(r.url)}" target="_blank" rel="noopener">📄 ${esc(r.label)}</a>`).join(' &nbsp; ')}</div>
-    <div class="notice">⚠ 단계 내용은 원문 매뉴얼을 요약한 예시이고, 그림은 이해를 돕기 위해 새로 그린 것입니다. 감독자 보충설명은 참고용이며 <b>승인된 작업 기준은 매뉴얼 원문</b>입니다.</div></div>`;
+    <div class="meta" style="margin-top:4px">${(t.refs||[]).map(r=>`<a href="${esc(r.url)}" target="_blank" rel="noopener">📄 ${esc(r.label)}</a>`).join(' &nbsp; ')}</div>
+    <div class="notice">⚠ 단계 내용은 원문 매뉴얼을 요약한 예시이고, 그림은 이해를 돕기 위해 새로 그린 것입니다. 감독자 보충설명·챗봇 답변·3D 도면은 참고용이며 <b>승인된 작업 기준은 매뉴얼 원문</b>입니다.</div></div>`;
 }
-
 function renderTech(){
   const t=task(); let h=taskHead(t);
   t.steps.forEach((s,i)=>{
@@ -236,7 +307,7 @@ function renderTech(){
     const onApplied=qs.filter(q=>q.pos==='on'&&q.status==='applied');
     const onPending=qs.filter(q=>q.pos==='on'&&(q.status==='open'||q.status==='answered'));
     const onManual=qs.filter(q=>q.pos==='on'&&q.status==='manual');
-    h+=`<div class="step ${s.caution||''}">
+    h+=`<div class="step ${s.caution||''}" id="step-${s.id}">
       <div class="step-top"><div class="num">${i+1}</div><div style="flex:1">
         <h3>${s.caution?`<span class="tag ${s.caution}">${s.caution==='warning'?'WARNING':'CAUTION'}</span>`:''}${esc(s.title)}</h3>
         <div class="body">${esc(s.body)}</div>
@@ -246,9 +317,8 @@ function renderTech(){
       ${onApplied.map(q=>suppHTML(q)).join('')}
       ${onManual.map(q=>`<div class="supp" style="background:#f3f4f7;border-color:#dfe2e8"><div class="lbl" style="color:var(--sub)">원문 참조 처리</div><div class="q">Q. ${esc(q.text)}</div><div>→ ${esc(q.answer?.ref||'')}</div></div>`).join('')}
       ${onPending.length?`<div class="pending">🟣 이 단계 질문 ${onPending.length}건 답변 대기: ${onPending.map(q=>`<a href="#" data-metoo="${q.id}">"${esc(q.text.slice(0,22))}…" 나도 궁금(${q.metoo})</a>`).join(', ')}</div>`:''}
-      <div class="row"><button class="btn qbtn" data-ask="${s.id}" data-pos="on">❓ 이 단계에 질문</button></div>
+      <div class="row">${hasModels(t.id,s.id)?`<button class="btn btn3d" data-view3d="${s.id}">🧊 3D 보기</button>`:''}<button class="btn qbtn" data-ask="${s.id}" data-pos="on">❓ 이 단계에 질문</button></div>
     </div>`;
-    // 단계 사이 질문
     const between=qs.filter(q=>q.pos==='after');
     h+=`<div class="gap"><div class="line"></div>
       ${between.map(q=>q.status==='applied'?`<div class="gapq" style="background:var(--ok-soft);border-color:#c5e1c7"><b style="color:var(--ok);font-size:12px">단계 사이 보충설명</b><div style="color:var(--sub);font-size:13px">Q. ${esc(q.text)}</div><div>A. ${esc(q.answer.text)} <span class="tag ref">근거: ${esc(q.answer.ref)}</span></div>${mediaHTML(q.answer.photos)}</div>`
@@ -274,10 +344,11 @@ function renderSup(){
   <div class="rule"><b>우선순위 점수</b> = 안전단계(WARNING 40 / CAUTION 20) + 작업 중단 40 + "나도 궁금" 1명당 8(최대 40) + 대기 시간 1시간당 1(최대 20). 점수가 높은 질문부터 위에 표시됩니다.</div>`;
   if(!list.length) h+=`<div class="empty">해당 상태의 질문이 없습니다.</div>`;
   list.forEach(({q,sc},idx)=>{
-    const t=S.tasks.find(x=>x.id===q.taskId), si=t.steps.findIndex(s=>s.id===q.stepId), st=t.steps[si];
+    const t=S.tasks.find(x=>x.id===q.taskId); if(!t) return;
+    const si=t.steps.findIndex(s=>s.id===q.stepId), st=t.steps[si]; if(!st) return;
     h+=`<div class="qitem">
       <div class="score"><b>${sc.total}</b><small>${supFilter==='open'?'#'+(idx+1):''}</small></div>
-      <div class="where">${esc(t.title)} · ${q.pos==='on'?`Step ${si+1} ${esc(st.title)}`:`Step ${si+1}↔${si+2} 사이`} · ${esc(q.author)} · ${ago(q.createdAt)} <span class="status st-${q.status}">${statusLabel(q.status)}</span></div>
+      <div class="where">${esc(t.title)} · ${q.pos==='on'?`Step ${si+1} ${esc(st.title)}`:`Step ${si+1}↔${si+2} 사이`} · ${esc(q.author)} · ${ago(q.createdAt)} <span class="status st-${q.status}">${statusLabel(q.status)}</span>${q.fromChat?' <span class="tag ref">챗봇에서 넘어옴</span>':''}</div>
       <div class="text">${esc(q.text)}</div>
       <div class="chips">${sc.safety?`<span class="hot">안전단계 +${sc.safety}</span>`:''}${sc.stop?`<span class="hot">작업 중단 +40</span>`:''}<span>나도 궁금 ${q.metoo}명 +${sc.metoo}</span><span>대기 +${sc.wait}</span></div>
       ${mediaHTML(q.photos)}
@@ -293,20 +364,57 @@ function renderSup(){
 
 function renderAdmin(){
   const t=task();
-  let h=`<div class="task-head"><h2>관리: ${esc(t.title)}</h2><div class="meta">단계 내용과 단계별 사진을 관리합니다. 데이터는 이 브라우저에 저장되며, JSON으로 내보내 다른 PC와 공유할 수 있습니다.</div>
-    <div class="row"><button class="btn" id="expBtn">⬇ JSON 내보내기</button><button class="btn" id="impBtn">⬆ JSON 가져오기</button><button class="btn" id="resetBtn">↺ 예시 데이터로 초기화</button><button class="btn primary" id="addStep">+ 단계 추가</button></div></div>`;
+  const models=allModels();
+  let h=`<div class="task-head"><h2>관리: ${esc(t.title)}</h2><div class="meta">단계 내용, 단계별 사진, 3D 도면 연결을 관리합니다. 바꾼 내용은 이 브라우저에 저장되며, 아래 버튼으로 파일을 내보내 GitHub에 덮어쓰면 모두에게 적용됩니다.</div>
+    <div class="row"><button class="btn" id="expManual">⬇ manual.json 내보내기</button><button class="btn" id="expModels">⬇ models.json 내보내기</button><button class="btn" id="expBtn">⬇ 전체 백업(JSON)</button><button class="btn" id="impBtn">⬆ 백업 가져오기</button><button class="btn" id="reloadFiles">↺ 저장소 파일로 다시 불러오기</button><button class="btn primary" id="addStep">+ 단계 추가</button></div></div>
+    <div class="task-head"><h2 style="font-size:16px">🧊 3D 모델 목록 (${models.length}개)</h2>
+      <div class="meta">저장소 <code>models</code> 폴더의 STL은 모두에게 보이고, 여기서 끌어놓은 STL은 이 브라우저에만 저장됩니다(테스트용). 넣는 방법은 <code>models/README.md</code>를 보세요.</div>
+      ${models.length?`<div style="margin-top:8px">${models.map(m=>`<div class="pinrow"><span>${m.local?'💻':'📁'} <b>${esc(m.name)}</b> <span class="meta">${esc(m.file||'')}${m.size?' · '+(m.size/1048576).toFixed(1)+'MB':''}${m.local?' · 내 브라우저':' · 저장소'}</span></span>${m.local?`<button class="btn cmini" data-dellocal="${m.id}">삭제</button>`:''}</div>`).join('')}</div>`:`<div class="empty" style="padding:12px">아직 모델이 없습니다.</div>`}
+      <div class="drop" id="stlDrop">STL 파일을 여기에 끌어놓거나 <a href="#" id="stlPick">눌러서 선택</a> (내 브라우저에만 저장)</div>
+    </div>`;
   t.steps.forEach((s,i)=>{
+    const l=linkFor(t.id,s.id); const sel=new Set(l?.models||[]);
     h+=`<div class="admin-step"><div class="grid2">
       <div><label class="f">Step ${i+1} 제목</label><input type="text" data-edit="title" data-step="${s.id}" value="${esc(s.title)}"></div>
       <div><label class="f">근거 (매뉴얼 참조)</label><input type="text" data-edit="ref" data-step="${s.id}" value="${esc(s.ref)}"></div></div>
       <label class="f">내용</label><textarea data-edit="body" data-step="${s.id}">${esc(s.body)}</textarea>
       <label class="f">주의 등급</label><select data-edit="caution" data-step="${s.id}"><option value="">없음</option><option value="caution" ${s.caution==='caution'?'selected':''}>CAUTION</option><option value="warning" ${s.caution==='warning'?'selected':''}>WARNING</option></select>
+      <label class="f">3D 도면 연결</label>
+      ${models.length?`<div style="display:flex;flex-wrap:wrap;gap:4px 14px">${models.map(m=>`<label style="font-size:13px"><input type="checkbox" data-linkmodel="${m.id}" data-step="${s.id}" ${sel.has(m.id)?'checked':''}> ${esc(m.name)}${m.local?' 💻':''}</label>`).join('')}</div>`:'<div class="meta">위 목록에 모델을 먼저 넣어 주세요.</div>'}
+      ${l&&l.models?.length?`<div class="meta" style="margin-top:4px">저장된 시점: ${l.camera?'있음':'기본(정면 비스듬히)'} · 표시 핀 ${l.pins?.length||0}개</div>`:''}
       ${mediaHTML(s.photos,s.illu,{del:s.id})}
-      <div class="row"><button class="btn" data-stepphoto="${s.id}">📷 사진 추가</button>${s.illu?`<button class="btn" data-noillu="${s.id}">예시 그림 숨기기</button>`:''}<button class="btn" data-delstep="${s.id}" style="color:var(--warn)">단계 삭제</button></div>
+      <div class="row">${l&&l.models?.length?`<button class="btn btn3d" data-edit3d="${s.id}">🧊 3D 시점·핀 편집</button>`:''}<button class="btn" data-stepphoto="${s.id}">📷 사진 추가</button>${s.illu?`<button class="btn" data-noillu="${s.id}">예시 그림 숨기기</button>`:''}<button class="btn" data-delstep="${s.id}" style="color:var(--warn)">단계 삭제</button></div>
     </div>`;
   });
   $('#app').innerHTML=h;
+  const drop=$('#stlDrop');
+  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('over');});
+  drop.addEventListener('dragleave',()=>drop.classList.remove('over'));
+  drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('over');addLocalStl(e.dataTransfer.files);});
+  $('#stlPick').onclick=e=>{e.preventDefault();const i=document.createElement('input');i.type='file';i.accept='.stl';i.multiple=true;i.onchange=()=>addLocalStl(i.files);i.click();};
 }
+async function addLocalStl(files){
+  let n=0;
+  for(const f of files){
+    if(!/\.stl$/i.test(f.name)){toast('STL 파일만 넣을 수 있습니다: '+f.name);continue;}
+    if(f.size>100*1048576){toast('100MB가 넘는 파일은 넣을 수 없습니다: '+f.name);continue;}
+    const data=await f.arrayBuffer();
+    try{ await idbPut({id:'local-'+uid(),name:f.name.replace(/\.stl$/i,''),fileName:f.name,data}); n++; }catch(e){ toast('브라우저 저장 공간이 부족합니다'); }
+    if(f.size>20*1048576) toast(f.name+'은 20MB가 넘어 휴대폰에서 느릴 수 있습니다');
+  }
+  LOCAL_MODELS=await idbAll(); render(); if(n) toast(`STL ${n}개를 넣었습니다. 아래 Step에서 연결하세요.`);
+}
+function setLink(tid,sid,patch){
+  const k=linkKey(tid,sid); const cur=clone(linkFor(tid,sid)||{task:tid,step:sid,models:[]});
+  Object.assign(cur,patch); S.linkEdits[k]=cur; save();
+}
+function effectiveLinks(){
+  const map=new Map();
+  FILE_LINKS.forEach(l=>map.set(linkKey(l.task,l.step),l));
+  Object.entries(S.linkEdits).forEach(([k,l])=>map.set(k,l));
+  return [...map.values()].filter(l=>l&&l.models&&l.models.length);
+}
+function download(name,obj){const b=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();}
 
 /* ===================== 모달 ===================== */
 function openModal(html){$('#modal').innerHTML=html;$('#modalBg').classList.add('show');}
@@ -314,26 +422,33 @@ function closeModal(){$('#modalBg').classList.remove('show');}
 $('#modalBg').addEventListener('click',e=>{if(e.target.id==='modalBg')closeModal();});
 
 let draftPhotos=[];
-function askModal(stepId,pos){
+function askModal(stepId,pos,prefill='',fromChat=false){
   const t=task(), i=t.steps.findIndex(s=>s.id===stepId), s=t.steps[i];
   const where=pos==='on'?`Step ${i+1} · ${s.title}`:`Step ${i+1}↔${i+2} 사이`;
   const sims=S.questions.filter(q=>q.taskId===t.id&&q.stepId===stepId&&q.pos===pos&&q.status!=='manual');
   draftPhotos=[];
-  openModal(`<h3>질문하기</h3><div class="meta">위치: <b>${esc(where)}</b></div>
+  openModal(`<h3>질문하기</h3>
+    <label class="f">위치${fromChat?' (챗봇이 가장 가까운 단계를 골랐어요. 다르면 바꿔 주세요)':''}</label>
+    <select id="qStep">${t.steps.map((x,j)=>`<option value="${x.id}" ${x.id===stepId?'selected':''}>Step ${j+1} · ${esc(x.title)}</option>`).join('')}</select>
+    ${pos==='after'?`<div class="meta">${esc(where)}</div>`:''}
     ${sims.length?`<div class="similar"><b>이 위치에 이미 있는 질문</b> (같은 내용이면 "나도 궁금"만 눌러 주세요)${sims.map(q=>`<div><span>${esc(q.text)}</span><button class="btn" data-metoo-modal="${q.id}">나도 궁금 ${q.metoo}</button></div>`).join('')}</div>`:''}
-    <label class="f">질문 내용</label><textarea id="qText" placeholder="어디서 막혔는지, 무엇이 헷갈리는지 적어 주세요"></textarea>
-    <div class="grid2"><div><label class="f">작성자</label><input type="text" id="qAuthor" value="${esc(localStorage.getItem('mfqa-author')||'')}" placeholder="이름 또는 사번"></div>
+    <label class="f">질문 내용</label><textarea id="qText" placeholder="어디서 막혔는지, 무엇이 헷갈리는지 적어 주세요">${esc(prefill)}</textarea>
+    <div class="grid2"><div><label class="f">작성자</label><input type="text" id="qAuthor" value="${esc(lsGet('mfqa-author'))}" placeholder="이름 또는 사번"></div>
     <div><label class="f">작업 상태</label><label style="display:flex;gap:6px;align-items:center;margin-top:8px"><input type="checkbox" id="qStop"> 이거 모르면 진행 못 함 (작업 중단)</label></div></div>
     <label class="f">사진 첨부</label><button class="btn" id="qPhotoBtn">📷 사진 선택</button><div class="thumbs" id="qThumbs"></div>
     <div class="row" style="justify-content:flex-end"><button class="btn" data-close>취소</button><button class="btn primary" id="qSubmit">질문 등록</button></div>`);
   $('#qPhotoBtn').onclick=()=>pickImages().then(p=>{draftPhotos.push(...p);$('#qThumbs').innerHTML=draftPhotos.map(x=>`<img src="${x.src}">`).join('');});
   $('#qSubmit').onclick=()=>{
     const text=$('#qText').value.trim(); if(!text){toast('질문 내용을 입력해 주세요');return;}
-    const author=$('#qAuthor').value.trim()||'익명'; try{localStorage.setItem('mfqa-author',author);}catch(e){}
-    S.questions.push({id:uid(),taskId:t.id,stepId,pos,text,author,stopped:$('#qStop').checked,metoo:0,createdAt:Date.now(),photos:draftPhotos,status:'open'});
+    const author=$('#qAuthor').value.trim()||'익명'; lsSet('mfqa-author',author);
+    const sid=pos==='on'?$('#qStep').value:stepId;
+    S.questions.push({id:uid(),taskId:t.id,stepId:sid,pos,text,author,stopped:$('#qStop').checked,metoo:0,createdAt:Date.now(),photos:draftPhotos,status:'open',fromChat});
     save();closeModal();render();toast('질문이 등록되었습니다. 감독자 목록에 올라갑니다.');
+    if(fromChat) botSay('감독자에게 질문을 넘겼어요. 답변이 승인되면 이 단계에 표시되고, 다음부터는 제가 바로 답할 수 있어요.');
   };
 }
+function lsGet(k){try{return localStorage.getItem(k)||'';}catch(e){return '';}}
+function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
 function answerModal(id){
   const q=S.questions.find(x=>x.id===id); draftPhotos=q.answer?[...q.answer.photos]:[];
   openModal(`<h3>답변 작성</h3><div class="meta">Q. ${esc(q.text)}</div>${mediaHTML(q.photos)}
@@ -346,7 +461,7 @@ function answerModal(id){
     const text=$('#aText').value.trim(), ref=$('#aRef').value.trim();
     if(!text){toast('답변을 입력해 주세요');return;} if(!ref){toast('근거 매뉴얼 참조는 필수입니다');return;}
     q.answer={text,ref,by:'감독자',at:Date.now(),photos:draftPhotos}; q.status='answered';
-    save();closeModal();supFilter='answered';render();toast('승인 대기로 이동했습니다. 승인하면 흐름에 반영됩니다.');
+    save();closeModal();supFilter='answered';render();toast('승인 대기로 이동했습니다. 승인하면 흐름과 챗봇에 반영됩니다.');
   };
 }
 function manualModal(id){
@@ -358,43 +473,242 @@ function manualModal(id){
     q.answer={text:'매뉴얼 원문 참조',ref,by:'감독자',at:Date.now(),photos:[]}; q.status='manual'; save();closeModal();render();};
 }
 
+/* ===================== 3D 뷰어 ===================== */
+let V=null; // {THREE, renderer, scene, camera, controls, group, meshes, pins, edit, tid, sid, raf}
+async function loadThree(){
+  if(V&&V.THREE) return V;
+  const THREE=await import('three');
+  const {STLLoader}=await import('./vendor/three/STLLoader.js');
+  const {OrbitControls}=await import('./vendor/three/OrbitControls.js');
+  V={THREE,STLLoader,OrbitControls};
+  return V;
+}
+const PALETTE=[0x9aa4ae,0x5b8fd1,0xd18f5b,0x6fb07a,0xb07ab0,0xc9b458];
+async function openViewer(tid,sid,edit){
+  const t=S.tasks.find(x=>x.id===tid), si=t.steps.findIndex(s=>s.id===sid), st=t.steps[si];
+  $('#vTitle').textContent=`Step ${si+1} · ${st.title} — 3D 도면${edit?' (편집)':''}`;
+  $('#viewerBg').classList.add('show'); $('#vMsg').textContent='3D 도구를 불러오는 중…'; $('#vInfo').textContent=''; $('#vPins').innerHTML='';
+  $('#vside').classList.toggle('show',!!edit);
+  try{ await loadThree(); }catch(e){
+    $('#vMsg').innerHTML='3D 도구를 불러오지 못했습니다.<br>파일을 더블클릭해서 연 경우(file://)에는 3D가 동작하지 않습니다.<br>GitHub Pages 주소로 열어 주세요.'; return;
+  }
+  const {THREE,OrbitControls}=V;
+  const wrap=$('#vcanvasWrap');
+  if(!V.renderer){
+    V.renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});
+    V.renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+    wrap.prepend(V.renderer.domElement);
+    V.scene=new THREE.Scene();
+    V.camera=new THREE.PerspectiveCamera(40,1,0.01,100000); V.camera.up.set(0,0,1);
+    V.controls=new OrbitControls(V.camera,V.renderer.domElement); V.controls.enableDamping=true;
+    V.scene.add(new THREE.HemisphereLight(0xffffff,0x8090a0,1.6));
+    const d1=new THREE.DirectionalLight(0xffffff,1.6); d1.position.set(1,-2,3); V.scene.add(d1);
+    const d2=new THREE.DirectionalLight(0xffffff,0.6); d2.position.set(-2,1,-1); V.scene.add(d2);
+    V.renderer.domElement.addEventListener('pointerdown',e=>{V._down=[e.clientX,e.clientY];});
+    V.renderer.domElement.addEventListener('pointerup',onCanvasClick);
+    new ResizeObserver(resizeViewer).observe(wrap);
+  }
+  if(V.group){ V.scene.remove(V.group); V.group.traverse(o=>{o.geometry&&o.geometry.dispose();o.material&&o.material.dispose();}); }
+  V.group=new THREE.Group(); V.scene.add(V.group); V.meshes=[]; V.edit=!!edit; V.tid=tid; V.sid=sid; V.pinMode=false; V.wire=false;
+  resizeViewer();
+  const link=linkFor(tid,sid); const ids=(link?.models||[]).filter(id=>modelById(id));
+  if(!ids.length){ $('#vMsg').textContent='이 단계에 연결된 3D 모델이 없습니다.'; renderSide(); loop(); return; }
+  try{
+    for(let k=0;k<ids.length;k++){
+      const m=modelById(ids[k]);
+      $('#vMsg').textContent=`불러오는 중: ${m.name} (${k+1}/${ids.length})`;
+      const geo=await loadGeometry(m,p=>{$('#vMsg').textContent=`불러오는 중: ${m.name} ${p}%`;});
+      geo.computeVertexNormals();
+      const mat=new THREE.MeshStandardMaterial({color:PALETTE[k%PALETTE.length],metalness:.35,roughness:.55,side:THREE.DoubleSide});
+      const mesh=new THREE.Mesh(geo,mat); mesh.userData.modelId=m.id; V.group.add(mesh); V.meshes.push(mesh);
+    }
+  }catch(e){ console.error(e); $('#vMsg').innerHTML='STL 파일을 읽지 못했습니다.<br>파일 이름과 models.json의 file 값이 같은지 확인해 주세요.'; renderSide(); loop(); return; }
+  $('#vMsg').textContent='';
+  // 가운데로 맞추기
+  const box=new THREE.Box3().setFromObject(V.group); const c=box.getCenter(new THREE.Vector3()); const size=box.getSize(new THREE.Vector3());
+  V.group.position.sub(c); V.size=size; V.radius=size.length()/2||1;
+  const tris=V.meshes.reduce((a,m)=>a+m.geometry.attributes.position.count/3,0);
+  $('#vInfo').textContent=`크기 ${fmt(size.x)} × ${fmt(size.y)} × ${fmt(size.z)} (파일 단위) · 삼각형 ${Math.round(tris).toLocaleString()}개`;
+  V.camera.near=V.radius/100; V.camera.far=V.radius*100; V.camera.updateProjectionMatrix();
+  resetView();
+  V.pins=clone(link.pins||[]);
+  renderSide(); loop();
+}
+const fmt=n=>n>=100?n.toFixed(0):n>=10?n.toFixed(1):n.toFixed(2);
+async function loadGeometry(m,onP){
+  const {STLLoader}=V; const loader=new STLLoader();
+  if(m.local){ const rec=await idbGet(m.id); return loader.parse(rec.data); }
+  return new Promise((res,rej)=>loader.load('models/'+encodeURIComponent(m.file),res,e=>{if(e.total)onP(Math.round(e.loaded/e.total*100));},rej));
+}
+function resetView(){
+  if(!V||!V.radius) return;
+  const link=linkFor(V.tid,V.sid);
+  if(link&&link.camera){ V.camera.position.fromArray(link.camera.pos); V.controls.target.fromArray(link.camera.target); }
+  else { const r=V.radius; V.camera.position.set(r*1.6,-r*2.2,r*1.4); V.controls.target.set(0,0,0); }
+  V.controls.update();
+}
+function resizeViewer(){ if(!V||!V.renderer) return; const w=$('#vcanvasWrap'); const W=w.clientWidth||600,Hh=w.clientHeight||400; V.renderer.setSize(W,Hh,false); V.camera.aspect=W/Hh; V.camera.updateProjectionMatrix(); }
+function loop(){
+  cancelAnimationFrame(V.raf);
+  const tick=()=>{ if(!$('#viewerBg').classList.contains('show')) return; V.controls.update(); V.renderer.render(V.scene,V.camera); drawPins(); V.raf=requestAnimationFrame(tick); };
+  tick();
+}
+function drawPins(){
+  const {THREE}=V; const w=$('#vcanvasWrap'); const W=w.clientWidth,Hh=w.clientHeight;
+  const pins=V.pins||[]; const host=$('#vPins');
+  if(host.children.length!==pins.length) host.innerHTML=pins.map(p=>`<div class="pin">${esc(p.label)}</div>`).join('');
+  pins.forEach((p,i)=>{ const v=new THREE.Vector3().fromArray(p.p).project(V.camera); const el=host.children[i];
+    el.style.left=((v.x+1)/2*W)+'px'; el.style.top=((1-v.y)/2*Hh)+'px'; el.style.display=v.z<1?'block':'none'; });
+}
+function onCanvasClick(e){
+  if(!V.edit||!V.pinMode) return;
+  if(V._down&&Math.hypot(e.clientX-V._down[0],e.clientY-V._down[1])>5) return; // 드래그는 무시
+  const {THREE}=V; const r=V.renderer.domElement.getBoundingClientRect();
+  const ndc=new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1);
+  const ray=new THREE.Raycaster(); ray.setFromCamera(ndc,V.camera);
+  const hit=ray.intersectObjects(V.meshes,false)[0];
+  if(!hit){toast('모델 위를 눌러 주세요');return;}
+  const label=(V.pinLabel||'').trim()||`핀 ${(V.pins.length+1)}`; V.pinLabel='';
+  V.pins.push({p:hit.point.toArray().map(n=>+n.toFixed(4)),label});
+  $('#vPins').innerHTML=''; renderSide(); toast('핀을 찍었습니다. [저장]을 눌러야 반영됩니다.');
+}
+function renderSide(){
+  if(!V.edit){ $('#vside').innerHTML=''; return; }
+  const link=linkFor(V.tid,V.sid);
+  $('#vside').innerHTML=`<h4>① 시점</h4><div class="meta">원하는 각도로 돌린 뒤 저장하세요. 정비사가 3D를 열면 이 각도로 시작합니다.</div>
+    <div class="row"><button class="btn" id="vSaveCam">📌 이 시점 저장</button>${link?.camera?`<button class="btn" id="vClearCam">기본 시점으로</button>`:''}</div>
+    <h4>② 표시 핀</h4><div class="meta">이름을 적고 [핀 찍기]를 켠 다음 모델을 누르세요.</div>
+    <input type="text" id="pinLabel" placeholder="예: 필터 캡" style="margin-top:6px" value="${esc(V.pinLabel||'')}">
+    <div class="row"><button class="btn ${V.pinMode?'on-mode':''}" id="vPinMode">${V.pinMode?'핀 찍는 중… (끄기)':'📍 핀 찍기'}</button></div>
+    <div style="margin-top:6px">${(V.pins||[]).map((p,i)=>`<div class="pinrow"><span>📍 ${esc(p.label)}</span><button class="btn cmini" data-delpin="${i}">삭제</button></div>`).join('')||'<div class="meta">핀 없음</div>'}</div>
+    <div class="row"><button class="btn primary" id="vSavePins">💾 핀 저장</button></div>
+    <h4>③ 모두에게 적용</h4><div class="meta">관리 화면의 [models.json 내보내기]로 받은 파일을 GitHub의 models 폴더에 덮어쓰세요.</div>`;
+}
+function closeViewer(){ $('#viewerBg').classList.remove('show'); if(document.fullscreenElement) document.exitFullscreen(); cancelAnimationFrame(V?.raf); if(S.role==='admin') render(); }
+$('#vClose').onclick=closeViewer;
+$('#viewerBg').addEventListener('click',e=>{if(e.target.id==='viewerBg')closeViewer();});
+$('#vReset').onclick=()=>resetView();
+$('#vWire').onclick=()=>{ if(!V?.meshes) return; V.wire=!V.wire; V.meshes.forEach(m=>m.material.wireframe=V.wire); $('#vWire').classList.toggle('on',V.wire); };
+$('#vFull').onclick=()=>{ const el=$('#viewer'); if(document.fullscreenElement) document.exitFullscreen(); else el.requestFullscreen?.(); };
+$('#vside').addEventListener('input',e=>{ if(e.target.id==='pinLabel') V.pinLabel=e.target.value; });
+$('#vside').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  if(b.id==='vSaveCam'){ setLink(V.tid,V.sid,{camera:{pos:V.camera.position.toArray().map(n=>+n.toFixed(4)),target:V.controls.target.toArray().map(n=>+n.toFixed(4))}}); renderSide(); toast('시점을 저장했습니다'); }
+  if(b.id==='vClearCam'){ const l=clone(linkFor(V.tid,V.sid)); delete l.camera; S.linkEdits[linkKey(V.tid,V.sid)]=l; save(); resetView(); renderSide(); }
+  if(b.id==='vPinMode'){ V.pinMode=!V.pinMode; renderSide(); }
+  if(b.id==='vSavePins'){ setLink(V.tid,V.sid,{pins:clone(V.pins)}); toast('핀을 저장했습니다'); }
+  if(b.dataset.delpin!==undefined){ V.pins.splice(+b.dataset.delpin,1); $('#vPins').innerHTML=''; renderSide(); }
+});
+
+/* ===================== 챗봇 (검색형) ===================== */
+const PARTICLES=['에서는','에서','으로는','으로','부터','까지','하나요','되나요','나요','까요','인가요','은','는','이','가','을','를','에','로','와','과','도','요','의','좀'];
+function norm(s){return String(s).toLowerCase().replace(/[^\p{L}\p{N}\s]/gu,' ').replace(/\s+/g,' ').trim();}
+function stem(w){ for(const p of PARTICLES){ if(w.length>p.length+1&&w.endsWith(p)) return w.slice(0,-p.length); } return w; }
+function bigrams(s){ const t=s.replace(/\s/g,''); const out=new Set(); for(let i=0;i<t.length-1;i++) out.add(t.slice(i,i+2)); return out; }
+function expand(q){
+  const n=norm(q); const words=n.split(' ').filter(Boolean).map(stem).filter(w=>w.length>=1);
+  const terms=new Set(words);
+  for(const g of SYN){ const hit=g.some(x=>n.includes(norm(x))||words.includes(norm(x))); if(hit) g.forEach(x=>terms.add(norm(x))); }
+  return {terms:[...terms].filter(w=>w.length>=2||/\d/.test(w)),bg:bigrams(n)};
+}
+function corpus(){
+  const docs=[];
+  S.tasks.forEach(t=>t.steps.forEach((s,i)=>{
+    docs.push({kind:'step',t,s,i,text:norm(s.title+' '+s.body+' '+s.ref),title:norm(s.title)});
+    S.questions.filter(q=>q.taskId===t.id&&q.stepId===s.id&&q.status==='applied').forEach(q=>docs.push({kind:'qa',t,s,i,q,text:norm(q.text+' '+q.answer.text+' '+q.answer.ref),title:norm(s.title)}));
+  }));
+  return docs;
+}
+function search(q){
+  const {terms,bg}=expand(q); if(!terms.length&&!bg.size) return [];
+  return corpus().map(d=>{
+    let sc=0; terms.forEach(w=>{ if(d.text.includes(w)) sc+= d.title.includes(w)?3:2; });
+    const db=bigrams(d.text); let ov=0; bg.forEach(b=>{if(db.has(b))ov++;}); sc+= bg.size? ov/bg.size*3 : 0;
+    if(d.kind==='qa') sc+=0.5;
+    return {d,sc};
+  }).filter(x=>x.sc>=2.5).sort((a,b)=>b.sc-a.sc);
+}
+function botSay(html,isHtml){ const b=document.createElement('div'); b.className='bub bot'; if(isHtml) b.innerHTML=html; else b.textContent=html; $('#chatLog').append(b); $('#chatLog').scrollTop=1e9; return b; }
+function meSay(t){ const b=document.createElement('div'); b.className='bub me'; b.textContent=t; $('#chatLog').append(b); $('#chatLog').scrollTop=1e9; }
+let lastQ='', lastBest=null;
+function answer(q){
+  lastQ=q; const res=search(q);
+  // 같은 Step은 한 번만 (보충설명 우선)
+  const seen=new Set(), top=[];
+  for(const r of res){ const k=r.d.t.id+'|'+r.d.s.id; if(seen.has(k)) { const ex=top.find(x=>x.k===k); if(r.d.kind==='qa'&&!ex.qa) ex.qa=r.d.q; continue; } seen.add(k); top.push({k,d:r.d,qa:r.d.kind==='qa'?r.d.q:null}); if(top.length===3) break; }
+  if(!top.length){
+    lastBest=null;
+    botSay(`등록된 매뉴얼과 보충설명에서 찾지 못했어요. 추측해서 답하지 않을게요.<br><button class="btn qbtn cmini" data-chatask="1">❓ 감독자에게 질문하기</button>`,true); return;
+  }
+  lastBest=top[0].d;
+  const warn=top.some(x=>x.d.s.caution);
+  let h=`관련 단계를 찾았어요${top.length>1?` (${top.length}곳)`:''}.`;
+  top.forEach(x=>{ const {t,s,i}=x.d;
+    h+=`<div class="hit">${s.caution?`<div class="hw">⚠ ${s.caution==='warning'?'WARNING':'CAUTION'} 단계입니다. 원문 경고를 먼저 확인하세요.</div>`:''}
+      <div class="ht" data-goto="${t.id}|${s.id}">Step ${i+1} · ${esc(s.title)}</div>
+      <div class="hs">${esc(s.body.split('\n').slice(0,2).join(' '))}</div>
+      <div class="hs">근거: ${esc(s.ref)}${S.tasks.length>1?' · '+esc(t.title):''}</div>
+      ${x.qa?`<div class="hq">✅ 감독자 보충설명: ${esc(x.qa.answer.text)}</div>`:''}
+      ${hasModels(t.id,s.id)?`<button class="btn btn3d cmini" data-chat3d="${t.id}|${s.id}">🧊 3D 보기</button>`:''}
+    </div>`; });
+  h+=`<button class="btn cmini" data-chatask="1">원하는 답이 아니에요 → 감독자에게 질문</button>`;
+  botSay(h,true);
+  if(warn){}
+}
+$('#chatFab').onclick=()=>{ const c=$('#chat'); c.classList.toggle('show'); if(c.classList.contains('show')&&!$('#chatLog').children.length) botSay('무엇이 궁금하세요? 매뉴얼 단계와 승인된 보충설명에서 찾아 드릴게요.\n예: "필터 캡이 안 돌아가요", "물이 얼마나 나와요?"'); $('#chatIn').focus(); };
+$('#chatClose').onclick=()=>$('#chat').classList.remove('show');
+$('#chatForm').onsubmit=e=>{ e.preventDefault(); const v=$('#chatIn').value.trim(); if(!v) return; meSay(v); $('#chatIn').value=''; setTimeout(()=>answer(v),150); };
+$('#chatLog').addEventListener('click',e=>{
+  const el=e.target.closest('[data-goto],[data-chat3d],[data-chatask]'); if(!el) return;
+  if(el.dataset.goto){ const [tid,sid]=el.dataset.goto.split('|'); S.role='tech'; S.taskId=tid; save(); render(); const st=$('#step-'+sid); if(st){ st.scrollIntoView({behavior:'smooth',block:'center'}); st.classList.remove('flash'); void st.offsetWidth; st.classList.add('flash'); } }
+  if(el.dataset.chat3d){ const [tid,sid]=el.dataset.chat3d.split('|'); openViewer(tid,sid,false); }
+  if(el.dataset.chatask){ const t=task(); let sid=t.steps[0].id; if(lastBest){ S.taskId=lastBest.t.id; sid=lastBest.s.id; } if(S.role!=='tech'){S.role='tech';save();render();} askModal(sid,'on',lastQ,true); }
+});
+
 /* ===================== 이벤트 ===================== */
 document.addEventListener('click',async e=>{
   const el=e.target.closest('button,a,[data-zoom],[data-illu]'); if(!el) return;
+  if(el.closest('#vside')||el.closest('#chat')||el.closest('#viewer .vhead')) return;
   const d=el.dataset;
   if(el.closest('#roleTabs')&&d.role){S.role=d.role;save();render();return;}
   if(d.close!==undefined){closeModal();return;}
   if(d.zoom!==undefined){const lb=$('#lightbox');lb.innerHTML=`<img src="${el.src}">`;lb.classList.add('show');return;}
   if(d.illu){const lb=$('#lightbox');lb.innerHTML=ILLU[d.illu];lb.classList.add('show');return;}
+  if(d.view3d){openViewer(task().id,d.view3d,false);return;}
+  if(d.edit3d){openViewer(task().id,d.edit3d,true);return;}
   if(d.ask){askModal(d.ask,d.pos);return;}
   if(d.metoo||d.metooModal){e.preventDefault();const q=S.questions.find(x=>x.id===(d.metoo||d.metooModal));q.metoo++;save();if(d.metooModal){el.textContent='나도 궁금 '+q.metoo;el.disabled=true;}else render();toast('"나도 궁금"이 반영되어 우선순위가 올라갑니다');return;}
   if(d.filter){supFilter=d.filter;render();return;}
   if(d.answer){answerModal(d.answer);return;}
   if(d.manual){manualModal(d.manual);return;}
-  if(d.apply){const q=S.questions.find(x=>x.id===d.apply);q.status='applied';save();render();toast('흐름에 반영되었습니다. 정비사 화면 해당 단계에 표시됩니다.');return;}
+  if(d.apply){const q=S.questions.find(x=>x.id===d.apply);q.status='applied';save();render();toast('흐름과 챗봇에 반영되었습니다.');return;}
   if(d.unapply){const q=S.questions.find(x=>x.id===d.unapply);q.status='answered';save();render();return;}
+  if(d.dellocal){if(confirmDel()){await idbDel(d.dellocal);LOCAL_MODELS=await idbAll();render();}return;}
   const t=task();
   if(d.stepphoto){const p=await pickImages();stepOf(t,d.stepphoto).photos.push(...p);save();render();return;}
   if(d.delphoto){const s=stepOf(t,d.owner);s.photos=s.photos.filter(p=>p.id!==d.delphoto);save();render();return;}
   if(d.noillu){stepOf(t,d.noillu).illu=null;save();render();return;}
   if(d.delstep){if(confirmDel()){t.steps=t.steps.filter(s=>s.id!==d.delstep);S.questions=S.questions.filter(q=>q.stepId!==d.delstep);save();render();}return;}
   if(el.id==='addStep'){t.steps.push({id:uid(),title:'새 단계',body:'',caution:null,ref:'',illu:null,photos:[]});save();render();return;}
-  if(el.id==='expBtn'){const b=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='manual-flow-qa.json';a.click();return;}
-  if(el.id==='impBtn'){const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=()=>{const fr=new FileReader();fr.onload=()=>{try{const d2=JSON.parse(fr.result);if(!d2.tasks)throw 0;S=d2;save();render();toast('가져오기 완료');}catch(_){toast('올바른 JSON 파일이 아닙니다');}};fr.readAsText(i.files[0]);};i.click();return;}
-  if(el.id==='resetBtn'){if(confirmDel('예시 데이터로 되돌리면 지금 데이터가 지워집니다. 계속할까요?')){S=demoData();S.role='admin';save();render();}return;}
+  if(el.id==='expManual'){download('manual.json',{tasks:S.tasks});toast('받은 파일을 GitHub의 data 폴더에 덮어쓰세요');return;}
+  if(el.id==='expModels'){const loc=effectiveLinks().filter(l=>l.models.some(id=>modelById(id)?.local)); download('models.json',{models:REPO_MODELS,links:effectiveLinks().map(l=>({...l,models:l.models.filter(id=>!modelById(id)?.local)})).filter(l=>l.models.length)}); toast(loc.length?'내 브라우저에만 있는 모델 연결은 빠졌습니다. STL을 models 폴더에 올린 뒤 다시 연결하세요.':'받은 파일을 GitHub의 models 폴더에 덮어쓰세요');return;}
+  if(el.id==='expBtn'){download('manual-flow-qa-backup.json',S);return;}
+  if(el.id==='impBtn'){const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=()=>{const fr=new FileReader();fr.onload=()=>{try{const d2=JSON.parse(fr.result);if(!d2.tasks)throw 0;S=d2;S.linkEdits=S.linkEdits||{};save();render();toast('가져오기 완료');}catch(_){toast('올바른 백업 파일이 아닙니다');}};fr.readAsText(i.files[0]);};i.click();return;}
+  if(el.id==='reloadFiles'){if(confirmDel('저장소 파일로 다시 불러오면 이 브라우저에서 고친 단계 내용과 3D 연결이 지워집니다(질문은 유지).')){S.tasks=clone(FILE_TASKS||FALLBACK_TASKS);S.linkEdits={};save();render();toast('저장소 파일로 다시 불러왔습니다');}return;}
 });
-// 확인창 대신 2번 누르기 방식
 let armed=null;
-function confirmDel(msg){const k=msg||'del';if(armed===k){armed=null;return true;}armed=k;toast((msg||'삭제하려면 한 번 더 누르세요')+(msg?' (한 번 더 누르면 실행)':''));setTimeout(()=>{if(armed===k)armed=null;},3000);return false;}
+function confirmDel(msg){const k=msg||'del';if(armed===k){armed=null;return true;}armed=k;toast((msg||'삭제하려면 한 번 더 누르세요')+(msg?' 한 번 더 누르면 실행합니다.':''));setTimeout(()=>{if(armed===k)armed=null;},3500);return false;}
 
 document.addEventListener('change',e=>{
-  const d=e.target.dataset; if(!d.edit) return;
+  const d=e.target.dataset;
+  if(d.linkmodel){ const t=task(); const l=linkFor(t.id,d.step); const set=new Set(l?.models||[]); e.target.checked?set.add(d.linkmodel):set.delete(d.linkmodel); setLink(t.id,d.step,{models:[...set]}); render(); toast('3D 연결을 바꿨습니다'); return; }
+  if(!d.edit) return;
   const s=stepOf(task(),d.step); s[d.edit]=e.target.value||(d.edit==='caution'?null:''); save(); toast('저장됨');
 });
 $('#taskSel').addEventListener('change',e=>{S.taskId=e.target.value;save();render();});
 $('#lightbox').addEventListener('click',()=>$('#lightbox').classList.remove('show'));
 
-load(); render();
+boot();
 </script>
 </body>
 </html>
