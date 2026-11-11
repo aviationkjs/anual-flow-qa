@@ -1,4 +1,10 @@
 {
-  "models": [],
+  "models": [
+    {
+      "id": "fitting-v2",
+      "name": "피팅 v2",
+      "file": "fitting-v2.stl"
+    }
+  ],
   "links": []
 }
