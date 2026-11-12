@@ -1,12 +1,12 @@
 # STL 넣는 곳
 
-1. STL 파일 이름을 영문·숫자·하이픈으로 바꿔 이 폴더에 올립니다. (예: `washer-filter-cap.stl`)
+1. STL 파일 이름을 영문·숫자·하이픈으로 바꿔 이 폴더에 올립니다. (예: `skin-panel-patch.stl`)
 2. `models.json`의 `models`에 한 줄 추가합니다.
 
 ```json
 {
   "models": [
-    { "id": "filter-cap", "name": "필터 캡", "file": "washer-filter-cap.stl" }
+    { "id": "skin-patch", "name": "외판 패치", "file": "skin-panel-patch.stl" }
   ],
   "links": []
 }

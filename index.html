@@ -6,52 +6,64 @@
 <title>매뉴얼 흐름 Q&amp;A</title>
 <script type="importmap">{"imports":{"three":"./vendor/three/three.module.js"}}</script>
 <style>
+  /* 디자인 토큰 — Astryx(neutral) 설계 방식을 따름: 중립 표면 + 역할별 상태색, 반경 inner/element/container, 모바일에서 본문 16px */
   :root{
-    --bg:#f4f5f7; --card:#fff; --ink:#1d2330; --sub:#5b6475; --line:#dde1e8;
-    --brand:#1f5fbf; --brand-soft:#e7effb;
-    --warn:#c62828; --warn-soft:#fdeaea; --caut:#b26a00; --caut-soft:#fff3e0;
-    --ok:#2e7d32; --ok-soft:#e8f5e9; --q:#6a3fb5; --q-soft:#f1ebfb;
+    --bg:#f4f4f5; --card:#ffffff; --ink:#111827; --sub:#525b6b; --line:rgba(0,0,0,.08); --line-strong:#d4d7dd;
+    --brand:#0074e2; --brand-soft:#e6f1fc;
+    --warn:#c9303a; --warn-soft:#fbe9ea; --caut:#7a5b00; --caut-soft:#fff4c2; --caut-fill:#ffce2f;
+    --ok:#198100; --ok-soft:#e6f4e2; --q:#6741d9; --q-soft:#efeafb;
+    --header:#18181b;
+    --r-inner:6px; --r-el:10px; --r-box:12px; --r-page:28px;
+    --fs:14px; --fs-sm:12.5px; --fs-lg:16px; --fs-h2:20px; --fs-h3:16px;
+    --shadow:0 1px 2px rgba(0,0,0,.06), 0 4px 14px rgba(0,0,0,.05);
   }
+  @media(pointer:coarse),(max-width:560px){ :root{--fs:16px; --fs-sm:13.5px; --fs-lg:17px; --fs-h2:21px; --fs-h3:17px} }
   *{box-sizing:border-box}
-  body{margin:0;font-family:"Pretendard","Malgun Gothic","Apple SD Gothic Neo",sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.55}
-  header{position:sticky;top:0;z-index:20;background:#16213a;color:#fff;padding:10px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  body{margin:0;font-family:"Pretendard","Figtree",-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic","Apple SD Gothic Neo",sans-serif;background:var(--bg);color:var(--ink);font-size:var(--fs);line-height:1.65;-webkit-font-smoothing:antialiased;word-break:keep-all}
+  header{position:sticky;top:0;z-index:20;background:var(--header);color:#fff;padding:10px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
   header h1{font-size:17px;margin:0 12px 0 0;font-weight:700}
   .tabs{display:flex;gap:4px;background:rgba(255,255,255,.08);padding:3px;border-radius:9px}
   .tabs button{border:0;background:transparent;color:#c9d3e6;padding:6px 12px;border-radius:7px;cursor:pointer;font-size:14px;font-family:inherit}
-  .tabs button.on{background:#fff;color:#16213a;font-weight:700}
+  .tabs button.on{background:#fff;color:var(--header);font-weight:700}
   .badge-n{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:9px;background:var(--warn);color:#fff;font-size:11px;line-height:18px;text-align:center}
-  header select{margin-left:auto;padding:6px 8px;border-radius:7px;border:0;font-family:inherit;max-width:100%}
-  main{max-width:860px;margin:0 auto;padding:16px}
-  .task-head{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px}
-  .task-head h2{margin:0 0 4px;font-size:19px}
-  .meta{color:var(--sub);font-size:13px}
-  .notice{margin-top:10px;font-size:12.5px;background:#fff8e1;border:1px solid #f3dfa0;border-radius:8px;padding:8px 10px;color:#6d5300}
+  header select{margin-left:auto;padding:7px 10px;border-radius:var(--r-el);border:0;font-family:inherit;font-size:14px;max-width:100%}
+  main{max-width:760px;margin:0 auto;padding:16px 14px 90px}
+  .task-head{background:var(--card);border:1px solid var(--line);border-radius:var(--r-box);padding:16px 18px;margin-bottom:16px;box-shadow:var(--shadow)}
+  .task-head h2{margin:0 0 6px;font-size:var(--fs-h2);line-height:1.35;letter-spacing:-.01em}
+  .meta{color:var(--sub);font-size:var(--fs-sm);line-height:1.5}
+  .notice{margin-top:12px;font-size:var(--fs-sm);background:var(--caut-soft);border:1px solid #f1dc8a;border-radius:var(--r-el);padding:9px 12px;color:var(--caut);line-height:1.55}
   a{color:var(--brand)}
-  .step{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;position:relative}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:var(--r-box);padding:16px 18px;position:relative;box-shadow:var(--shadow)}
   .step.warning{border-left:5px solid var(--warn)}
-  .step.caution{border-left:5px solid var(--caut)}
-  .step-top{display:flex;gap:10px;align-items:flex-start}
-  .num{flex:none;width:30px;height:30px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
-  .step h3{margin:2px 0 4px;font-size:16px}
-  .tag{display:inline-block;font-size:11.5px;font-weight:700;padding:1px 7px;border-radius:5px;margin-right:4px;vertical-align:middle}
+  .step.caution{border-left:5px solid var(--caut-fill)}
+    .step-top{display:flex;gap:10px;align-items:flex-start}
+  .num{flex:none;width:32px;height:32px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+  .step h3{margin:4px 0 8px;font-size:var(--fs-h3);line-height:1.35}
+  .tag{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:var(--r-inner);margin-right:6px;vertical-align:middle;letter-spacing:.02em}
   .tag.warning{background:var(--warn-soft);color:var(--warn)}
-  .tag.caution{background:var(--caut-soft);color:var(--caut)}
-  .tag.ref{background:#eef0f4;color:var(--sub);font-weight:500}
+  .tag.caution{background:var(--caut-fill);color:#3b2f00}
+  .tag.ref{background:#f1f2f4;color:var(--sub);font-weight:500;white-space:normal;line-height:1.5}
   .body{white-space:pre-wrap}
+  ul.body{list-style:none;margin:0;padding:0;white-space:normal}
+  ul.body li{position:relative;padding-left:16px;margin:0 0 6px;line-height:1.6}
+  ul.body li:last-child{margin-bottom:0}
+  ul.body li:before{content:"";position:absolute;left:2px;top:.72em;width:6px;height:6px;border-radius:50%;background:var(--brand)}
+  .step.warning ul.body li:before{background:var(--warn)}
+  .step.caution ul.body li:before{background:#c99a00}
   .media{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:10px}
-  .media figure{margin:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fafbfc;position:relative}
+  .media figure{margin:0;border:1px solid var(--line);border-radius:var(--r-el);overflow:hidden;background:#fafbfc;position:relative}
   .media img,.media svg{display:block;width:100%;height:120px;object-fit:cover;cursor:zoom-in}
   .media svg{object-fit:contain;background:#fff}
   .media figcaption{font-size:11.5px;color:var(--sub);padding:3px 6px}
   .media .del{position:absolute;top:4px;right:4px;border:0;background:rgba(0,0,0,.6);color:#fff;border-radius:5px;font-size:11px;padding:2px 6px;cursor:pointer}
   .row{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;align-items:center}
-  button.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 11px;cursor:pointer;font-size:13.5px;font-family:inherit;color:var(--ink)}
+  button.btn{border:1px solid var(--line-strong);background:#fff;border-radius:var(--r-el);padding:8px 13px;cursor:pointer;font-size:14px;font-family:inherit;color:var(--ink);min-height:36px}
   button.btn:hover{background:#f2f4f8}
   button.primary{background:var(--brand);border-color:var(--brand);color:#fff}
-  button.primary:hover{background:#184d9c}
-  button.qbtn{background:var(--q-soft);border-color:#d9c9f3;color:var(--q);font-weight:600}
+  button.primary:hover{background:#005fba}
+  button.qbtn{background:var(--q-soft);border-color:#d9cff5;color:var(--q);font-weight:600}
   button.okbtn{background:var(--ok);border-color:var(--ok);color:#fff}
-  .supp{margin-top:10px;background:var(--ok-soft);border:1px solid #c5e1c7;border-radius:9px;padding:9px 11px}
+  .supp{margin-top:12px;background:var(--ok-soft);border:1px solid #bfe0b5;border-radius:var(--r-el);padding:10px 12px;line-height:1.55}
   .supp .lbl{font-size:12px;font-weight:700;color:var(--ok)}
   .supp .q{font-size:13px;color:var(--sub);margin:2px 0}
   .pending{margin-top:8px;font-size:12.5px;color:var(--q)}
@@ -59,29 +71,31 @@
   .gap .line{width:2px;height:12px;background:#c4cad6}
   .gap button{border:1px dashed #b9a6df;background:transparent;color:var(--q);border-radius:20px;padding:2px 12px;font-size:12px;cursor:pointer;font-family:inherit;opacity:.75}
   .gap button:hover{opacity:1;background:var(--q-soft)}
-  .gapq{width:100%;background:var(--q-soft);border:1px solid #d9c9f3;border-radius:10px;padding:8px 11px;margin:4px 0;font-size:13.5px}
-  .qitem{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+  .gapq{width:100%;background:var(--q-soft);border:1px solid #d9cff5;border-radius:var(--r-el);padding:9px 12px;margin:4px 0;font-size:var(--fs-sm);line-height:1.55}
+  .qitem{background:var(--card);border:1px solid var(--line);border-radius:var(--r-box);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow)}
   .qitem .where{font-size:12.5px;color:var(--sub)}
   .qitem .text{font-weight:600;margin:4px 0}
   .score{float:right;text-align:right}
-  .score b{font-size:20px;color:var(--brand)}
+  .score b{font-size:22px;color:var(--ink)}
   .score small{display:block;color:var(--sub);font-size:11px}
   .chips span{display:inline-block;font-size:11.5px;padding:1px 7px;border-radius:5px;background:#eef0f4;color:var(--sub);margin:2px 4px 0 0}
   .chips span.hot{background:var(--warn-soft);color:var(--warn);font-weight:700}
   .status{display:inline-block;font-size:11.5px;padding:1px 8px;border-radius:10px;font-weight:700}
-  .st-open{background:var(--q-soft);color:var(--q)} .st-answered{background:#fff3e0;color:var(--caut)}
+  .st-open{background:var(--q-soft);color:var(--q)} .st-answered{background:var(--caut-soft);color:var(--caut)}
   .st-applied{background:var(--ok-soft);color:var(--ok)} .st-manual{background:#eef0f4;color:var(--sub)}
   .ans{margin-top:8px;border-top:1px dashed var(--line);padding-top:8px;font-size:13.5px}
   .subtabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
   .subtabs button{border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 12px;cursor:pointer;font-family:inherit;font-size:13px}
   .subtabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
-  .rule{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:12.5px;color:var(--sub);margin-bottom:12px}
-  textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-family:inherit;font-size:14px}
+  .subtabs button{min-height:34px}
+  .rule{background:var(--card);border:1px solid var(--line);border-radius:var(--r-el);padding:10px 12px;font-size:var(--fs-sm);color:var(--sub);margin-bottom:12px;line-height:1.55}
+  textarea,input[type=text]{width:100%;border:1px solid var(--line-strong);border-radius:var(--r-el);padding:9px 11px;font-family:inherit;font-size:16px;background:#fff}
+  textarea:focus,input[type=text]:focus{outline:2px solid var(--brand);outline-offset:1px;border-color:var(--brand)}
   textarea{min-height:80px;resize:vertical}
   label.f{display:block;font-size:12.5px;font-weight:700;color:var(--sub);margin:10px 0 4px}
   .modal-bg{position:fixed;inset:0;background:rgba(10,15,30,.55);display:none;align-items:flex-start;justify-content:center;z-index:50;overflow:auto;padding:30px 12px}
   .modal-bg.show{display:flex}
-  .modal{background:#fff;border-radius:14px;max-width:560px;width:100%;padding:18px}
+  .modal{background:#fff;border-radius:16px;max-width:560px;width:100%;padding:20px}
   .modal h3{margin:0 0 6px}
   .similar{background:#faf8fe;border:1px solid #e6dcf6;border-radius:8px;padding:8px 10px;margin-top:8px;font-size:13px}
   .similar div{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:3px 0}
@@ -91,15 +105,15 @@
   #lightbox.show{display:flex}
   #lightbox img,#lightbox svg{max-width:95vw;max-height:90vh;background:#fff;border-radius:6px}
   .empty{color:var(--sub);text-align:center;padding:30px}
-  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#16213a;color:#fff;padding:9px 16px;border-radius:9px;font-size:13.5px;opacity:0;transition:.25s;z-index:70;pointer-events:none}
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--header);color:#fff;padding:9px 16px;border-radius:9px;font-size:13.5px;opacity:0;transition:.25s;z-index:70;pointer-events:none}
   .toast.show{opacity:1}
-  .admin-step{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+  .admin-step{background:var(--card);border:1px solid var(--line);border-radius:var(--r-box);padding:14px 16px;margin-bottom:10px}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   @media(max-width:560px){.grid2{grid-template-columns:1fr}header select{margin-left:0;width:100%}}
 </style>
 <style>
   /* ---- 3D 뷰어 ---- */
-  .btn3d{background:#e8f1fb;border-color:#bcd3f0;color:#1f5fbf;font-weight:600}
+  .btn3d{background:var(--brand-soft);border-color:#b9d6f5;color:var(--brand);font-weight:600}
   #viewerBg{position:fixed;inset:0;background:rgba(10,15,30,.7);display:none;z-index:55;align-items:center;justify-content:center;padding:12px}
   #viewerBg.show{display:flex}
   #viewer{background:#fff;border-radius:14px;width:min(980px,100%);height:min(720px,100%);display:flex;flex-direction:column;overflow:hidden}
@@ -122,15 +136,15 @@
   .drop.over{background:var(--brand-soft);border-color:var(--brand)}
   @media(max-width:700px){#vbody{flex-direction:column}#vside{width:auto;border-left:0;border-top:1px solid var(--line);max-height:42%}}
   /* ---- 챗봇 ---- */
-  #chatFab{position:fixed;right:18px;bottom:18px;z-index:40;border:0;border-radius:28px;background:#16213a;color:#fff;padding:12px 18px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25);font-family:inherit}
+  #chatFab{position:fixed;right:18px;bottom:18px;z-index:40;border:0;border-radius:var(--r-page);background:var(--header);color:#fff;padding:12px 18px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25);font-family:inherit}
   #chat{position:fixed;right:18px;bottom:78px;z-index:45;width:min(400px,calc(100vw - 24px));height:min(560px,calc(100vh - 110px));background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.2);display:none;flex-direction:column;overflow:hidden}
   #chat.show{display:flex}
-  #chat .chead{background:#16213a;color:#fff;padding:10px 12px;display:flex;align-items:center;gap:8px}
+  #chat .chead{background:var(--header);color:#fff;padding:10px 12px;display:flex;align-items:center;gap:8px}
   #chat .chead b{margin-right:auto}
   #chat .chead button{background:transparent;border:0;color:#fff;font-size:18px;cursor:pointer}
-  #chat .cwarn{font-size:11.5px;background:#fff8e1;color:#6d5300;padding:5px 10px;border-bottom:1px solid #f3dfa0}
+  #chat .cwarn{font-size:12px;background:var(--caut-soft);color:var(--caut);padding:6px 10px;border-bottom:1px solid #f1dc8a;line-height:1.5}
   #chatLog{flex:1;overflow:auto;padding:10px;background:#f7f8fa;display:flex;flex-direction:column;gap:8px}
-  .bub{max-width:88%;padding:8px 11px;border-radius:12px;font-size:13.5px;white-space:pre-wrap}
+  .bub{max-width:88%;padding:9px 12px;border-radius:14px;font-size:14px;white-space:pre-wrap;line-height:1.55}
   .bub.me{align-self:flex-end;background:var(--brand);color:#fff;border-bottom-right-radius:4px}
   .bub.bot{align-self:flex-start;background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px}
   .hit{border:1px solid var(--line);border-radius:9px;padding:7px 9px;margin-top:6px;background:#fafbfc;white-space:normal}
@@ -184,38 +198,42 @@
   <div class="chead"><b>💬 매뉴얼 챗봇</b><button id="chatClose" title="닫기">✕</button></div>
   <div class="cwarn">등록된 매뉴얼과 승인된 보충설명에서만 찾아 답합니다. 작업 기준은 매뉴얼 원문입니다.</div>
   <div id="chatLog"></div>
-  <form id="chatForm"><input type="text" id="chatIn" placeholder="예: 필터 캡이 안 돌아가요" autocomplete="off"><button class="btn primary">보내기</button></form>
+  <form id="chatForm"><input type="text" id="chatIn" placeholder="예: 리벳 홀이 커졌어요" autocomplete="off"><button class="btn primary">보내기</button></form>
 </div>
 
 <script>
 /* ===================== 그림(예시용 자체 제작 SVG) ===================== */
 const ILLU = {
-  plug: `<svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="20" width="90" height="110" rx="8" fill="#eef1f6" stroke="#556" stroke-width="2"/><circle cx="65" cy="80" r="30" fill="#fff" stroke="#556" stroke-width="2"/><circle cx="65" cy="80" r="20" fill="#cfe0f5"/><rect x="170" y="45" width="45" height="60" rx="6" fill="#fff" stroke="#556" stroke-width="2"/><circle cx="185" cy="75" r="4" fill="#556"/><circle cx="200" cy="75" r="4" fill="#556"/><path d="M110 115 C135 115 130 75 150 75" fill="none" stroke="#556" stroke-width="3"/><rect x="142" y="66" width="16" height="18" rx="3" fill="#556"/><path d="M152 55 L165 45 M152 95 L165 105" stroke="#c62828" stroke-width="3"/><text x="120" y="142" font-size="12" text-anchor="middle" fill="#c62828" font-weight="bold">전원 플러그 분리</text></svg>`,
-  cover: `<svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg"><rect x="50" y="10" width="140" height="130" rx="8" fill="#eef1f6" stroke="#556" stroke-width="2"/><circle cx="120" cy="65" r="38" fill="#fff" stroke="#556" stroke-width="2"/><circle cx="120" cy="65" r="26" fill="#cfe0f5"/><rect x="58" y="110" width="124" height="24" rx="3" fill="#dfe4ec" stroke="#556"/><rect x="150" y="112" width="30" height="20" rx="3" fill="#ffd54f" stroke="#b26a00" stroke-width="2"/><path d="M200 140 L182 128" stroke="#b26a00" stroke-width="3" marker-end="url(#a)"/><defs><marker id="a" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="#b26a00"/></marker></defs><text x="120" y="148" font-size="11" text-anchor="middle" fill="#b26a00" font-weight="bold">하단 필터 커버</text></svg>`,
-  drain: `<svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="20" width="120" height="100" rx="6" fill="#eef1f6" stroke="#556" stroke-width="2"/><rect x="95" y="85" width="40" height="30" rx="3" fill="#fff" stroke="#556"/><path d="M110 100 C140 100 150 110 160 118" fill="none" stroke="#556" stroke-width="5" stroke-linecap="round"/><path d="M160 120 q2 8 0 14 M166 122 q2 6 0 10" stroke="#42a5f5" stroke-width="2" fill="none"/><path d="M150 128 h60 l-6 18 h-48z" fill="#e3f2fd" stroke="#556" stroke-width="2"/><path d="M155 136 h50" stroke="#42a5f5" stroke-width="3"/><text x="80" y="142" font-size="11" text-anchor="middle" fill="#1f5fbf" font-weight="bold">용기로 잔수 받기</text></svg>`,
-  cap: `<svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg"><rect x="40" y="25" width="160" height="100" rx="6" fill="#eef1f6" stroke="#556" stroke-width="2"/><circle cx="120" cy="75" r="32" fill="#fff" stroke="#556" stroke-width="3"/><rect x="104" y="68" width="32" height="14" rx="3" fill="#90a4ae"/><path d="M160 50 A45 45 0 0 0 80 50" fill="none" stroke="#c62828" stroke-width="3" marker-end="url(#b)"/><defs><marker id="b" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="#c62828"/></marker></defs><text x="120" y="143" font-size="11" text-anchor="middle" fill="#c62828" font-weight="bold">반시계 방향으로 돌려 분리</text></svg>`,
-  clean: `<svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg"><rect x="60" y="45" width="110" height="40" rx="10" fill="#cfd8dc" stroke="#556" stroke-width="2"/><path d="M70 55 h90 M70 65 h90 M70 75 h90" stroke="#90a4ae" stroke-width="2"/><circle cx="95" cy="62" r="4" fill="#8d6e63"/><circle cx="130" cy="70" r="3" fill="#8d6e63"/><path d="M110 10 v25 M100 15 q10 15 20 0" stroke="#42a5f5" stroke-width="3" fill="none"/><path d="M95 22 q-3 8 0 14 M125 22 q3 8 0 14" stroke="#42a5f5" stroke-width="2" fill="none"/><circle cx="190" cy="110" r="18" fill="#fff" stroke="#556" stroke-width="2"/><path d="M190 96 v28 M176 110 h28 M180 100 l20 20 M200 100 l-20 20" stroke="#78909c" stroke-width="2"/><text x="120" y="140" font-size="11" text-anchor="middle" fill="#1f5fbf" font-weight="bold">필터 세척 · 펌프 날개 확인</text></svg>`,
-  close: `<svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg"><rect x="50" y="10" width="140" height="120" rx="8" fill="#eef1f6" stroke="#556" stroke-width="2"/><circle cx="120" cy="60" r="35" fill="#fff" stroke="#556" stroke-width="2"/><rect x="150" y="102" width="30" height="20" rx="3" fill="#a5d6a7" stroke="#2e7d32" stroke-width="2"/><path d="M80 100 l10 10 l20 -20" stroke="#2e7d32" stroke-width="5" fill="none" stroke-linecap="round"/><text x="120" y="145" font-size="11" text-anchor="middle" fill="#2e7d32" font-weight="bold">조립 후 누수 확인</text></svg>`
+  safety: `<svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg"><path d="M20 95 L120 60 L220 95 L120 110 Z" fill="#e4e7ec" stroke="#4b5563" stroke-width="2"/><path d="M120 60 L120 30 L135 28 L135 60" fill="#cfd4dc" stroke="#4b5563" stroke-width="2"/><path d="M120 110 v18 M110 128 h20" stroke="#4b5563" stroke-width="3"/><rect x="150" y="18" width="62" height="34" rx="4" fill="#ffce2f" stroke="#7a5b00" stroke-width="2"/><text x="181" y="40" font-size="13" text-anchor="middle" fill="#3b2f00" font-weight="bold">TAG OUT</text><path d="M150 35 L140 35 L140 60" fill="none" stroke="#7a5b00" stroke-width="2"/><text x="120" y="144" font-size="12" text-anchor="middle" fill="#c9303a" font-weight="bold">접지 · 전원 OFF · 태그 아웃</text></svg>`,
+  assess: `<svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="25" width="200" height="90" rx="4" fill="#e4e7ec" stroke="#4b5563" stroke-width="2"/><g stroke="#9aa3b2" stroke-width="1"><path d="M50 25 v90 M90 25 v90 M130 25 v90 M170 25 v90"/></g><path d="M95 60 q15 -12 30 0 q10 10 25 5" fill="none" stroke="#c9303a" stroke-width="3"/><path d="M85 48 h70 M85 44 v8 M155 44 v8" stroke="#0074e2" stroke-width="2"/><text x="120" y="40" font-size="10" text-anchor="middle" fill="#0074e2">손상 길이</text><rect x="92" y="78" width="60" height="18" rx="3" fill="#fff" stroke="#4b5563"/><text x="122" y="91" font-size="10" text-anchor="middle" fill="#1f2937">SRM 한계 비교</text><text x="120" y="140" font-size="12" text-anchor="middle" fill="#0074e2" font-weight="bold">손상 측정 · 교체 판정</text></svg>`,
+  access: `<svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="20" width="200" height="100" rx="4" fill="#e4e7ec" stroke="#4b5563" stroke-width="2"/><rect x="40" y="35" width="70" height="70" rx="3" fill="#fff" stroke="#4b5563" stroke-width="2" stroke-dasharray="5 3"/><path d="M110 70 l25 0" stroke="#4b5563" stroke-width="3" marker-end="url(#ac)"/><defs><marker id="ac" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="#4b5563"/></marker></defs><rect x="145" y="40" width="60" height="60" rx="3" fill="#cfd4dc" stroke="#4b5563" stroke-width="2"/><path d="M150 55 h50 M150 70 h50 M150 85 h50" stroke="#ffce2f" stroke-width="5"/><text x="175" y="112" font-size="9" text-anchor="middle" fill="#4b5563">배선 보호</text><text x="120" y="140" font-size="12" text-anchor="middle" fill="#0074e2" font-weight="bold">패널 제거 · 내부 보호</text></svg>`,
+  drill: `<svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="80" width="200" height="14" fill="#cfd4dc" stroke="#4b5563" stroke-width="2"/><rect x="20" y="94" width="200" height="14" fill="#e4e7ec" stroke="#4b5563" stroke-width="2"/><path d="M100 80 q20 -14 40 0" fill="#9aa3b2" stroke="#4b5563" stroke-width="2"/><rect x="113" y="80" width="14" height="28" fill="#9aa3b2" stroke="#4b5563"/><path d="M120 20 v50" stroke="#374151" stroke-width="6"/><path d="M114 70 l6 8 l6 -8" fill="#374151"/><path d="M90 26 h24 M90 32 h24" stroke="#374151" stroke-width="2"/><path d="M135 70 l20 -20" stroke="#c9303a" stroke-width="2"/><text x="190" y="48" font-size="10" text-anchor="middle" fill="#c9303a">머리 두께만</text><path d="M100 120 h40" stroke="#0074e2" stroke-width="2"/><text x="120" y="135" font-size="10" text-anchor="middle" fill="#0074e2">드릴 = 생크보다 한 치수 작게</text><text x="120" y="147" font-size="12" text-anchor="middle" fill="#c9303a" font-weight="bold">리벳 머리 드릴 · 생크 펀치 아웃</text></svg>`,
+  inspect: `<svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="30" width="200" height="80" rx="4" fill="#e4e7ec" stroke="#4b5563" stroke-width="2"/><g fill="#fff" stroke="#4b5563" stroke-width="2"><circle cx="55" cy="70" r="8"/><circle cx="95" cy="70" r="8"/><ellipse cx="140" cy="70" rx="11" ry="8"/><circle cx="185" cy="70" r="8"/></g><path d="M140 52 v-14" stroke="#c9303a" stroke-width="2"/><text x="140" y="34" font-size="10" text-anchor="middle" fill="#c9303a">길쭉한 홀 → 오버사이즈</text><rect x="40" y="90" width="28" height="12" fill="#d57113" opacity=".5"/><text x="54" y="118" font-size="10" text-anchor="middle" fill="#d57113">부식 제거</text><text x="120" y="140" font-size="12" text-anchor="middle" fill="#0074e2" font-weight="bold">홀 · 하부 구조 점검</text></svg>`,
+  fabricate: `<svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg"><path d="M30 40 h120 v70 h-120 z" fill="#e4e7ec" stroke="#4b5563" stroke-width="2"/><g stroke="#b8bfca" stroke-width="1"><path d="M30 52 h120 M30 64 h120 M30 76 h120 M30 88 h120 M30 100 h120"/></g><text x="90" y="30" font-size="10" text-anchor="middle" fill="#4b5563">결 방향 ⟶</text><path d="M170 110 v-40 a20 20 0 0 1 20 -20 h20" fill="none" stroke="#4b5563" stroke-width="6"/><text x="205" y="110" font-size="10" text-anchor="middle" fill="#0074e2">굽힘 R</text><path d="M30 110 q0 -8 8 -8" fill="none" stroke="#198100" stroke-width="3"/><text x="60" y="128" font-size="10" fill="#198100">모서리 R · 디버링</text><text x="120" y="145" font-size="12" text-anchor="middle" fill="#0074e2" font-weight="bold">같은 재질·두께로 제작</text></svg>`,
+  cleco: `<svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="70" width="200" height="12" fill="#cfd4dc" stroke="#4b5563" stroke-width="2"/><rect x="20" y="82" width="200" height="12" fill="#e4e7ec" stroke="#4b5563" stroke-width="2"/><g fill="#9aa3b2" stroke="#4b5563" stroke-width="1.5"><rect x="48" y="40" width="10" height="30" rx="2"/><rect x="128" y="40" width="10" height="30" rx="2"/><rect x="208" y="40" width="10" height="30" rx="2"/></g><g fill="#c9303a"><circle cx="53" cy="38" r="5"/><circle cx="133" cy="38" r="5"/><circle cx="213" cy="38" r="5"/></g><g fill="#fff" stroke="#4b5563"><circle cx="93" cy="76" r="4"/><circle cx="173" cy="76" r="4"/></g><path d="M20 108 h33" stroke="#0074e2" stroke-width="2"/><text x="36" y="122" font-size="10" text-anchor="middle" fill="#0074e2">연거리 ≥ 2D</text><path d="M93 108 h40" stroke="#0074e2" stroke-width="2"/><text x="113" y="122" font-size="10" text-anchor="middle" fill="#0074e2">간격 ≥ 3D</text><text x="120" y="142" font-size="12" text-anchor="middle" fill="#0074e2" font-weight="bold">홀 가공 · 클레코 가고정</text></svg>`,
+  seal: `<svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg"><rect x="30" y="70" width="180" height="12" fill="#cfd4dc" stroke="#4b5563" stroke-width="2"/><rect x="30" y="86" width="180" height="12" fill="#e4e7ec" stroke="#4b5563" stroke-width="2"/><rect x="30" y="82" width="180" height="4" fill="#0074e2"/><text x="120" y="112" font-size="10" text-anchor="middle" fill="#0074e2">접합면 실란트</text><path d="M150 20 l20 20 l-10 10 l-20 -20 z" fill="#9aa3b2" stroke="#4b5563" stroke-width="2"/><path d="M140 30 l-35 35" stroke="#4b5563" stroke-width="4"/><path d="M60 40 q20 -10 40 0" fill="none" stroke="#d57113" stroke-width="4" stroke-linecap="round"/><text x="80" y="30" font-size="10" text-anchor="middle" fill="#d57113">프라이머</text><text x="120" y="140" font-size="12" text-anchor="middle" fill="#d57113" font-weight="bold">방식 처리 · 실란트 도포</text></svg>`,
+  rivet: `<svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg"><rect x="30" y="60" width="180" height="12" fill="#cfd4dc" stroke="#4b5563" stroke-width="2"/><rect x="30" y="72" width="180" height="12" fill="#e4e7ec" stroke="#4b5563" stroke-width="2"/><path d="M105 60 q15 -10 30 0" fill="#9aa3b2" stroke="#4b5563" stroke-width="2"/><rect x="114" y="60" width="12" height="24" fill="#9aa3b2" stroke="#4b5563"/><rect x="108" y="84" width="24" height="7" rx="2" fill="#9aa3b2" stroke="#4b5563" stroke-width="2"/><rect x="95" y="95" width="50" height="16" fill="#374151"/><text x="120" y="124" font-size="10" text-anchor="middle" fill="#374151">버킹바 (직각)</text><path d="M108 50 h24" stroke="#0074e2" stroke-width="2"/><text x="120" y="45" font-size="10" text-anchor="middle" fill="#0074e2">숍 헤드 1.5D × 0.5D</text><path d="M120 10 v26" stroke="#c9303a" stroke-width="5"/><path d="M114 36 l6 8 l6 -8" fill="#c9303a"/><text x="175" y="30" font-size="10" fill="#c9303a">리벳건</text><text x="120" y="143" font-size="12" text-anchor="middle" fill="#c9303a" font-weight="bold">리벳 장착 · 숍 헤드 확인</text></svg>`,
+  check: `<svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="30" width="200" height="80" rx="4" fill="#e4e7ec" stroke="#4b5563" stroke-width="2"/><g fill="#9aa3b2" stroke="#4b5563" stroke-width="1.5"><circle cx="55" cy="70" r="7"/><circle cx="95" cy="70" r="7"/><circle cx="135" cy="70" r="7"/><circle cx="175" cy="70" r="7"/></g><path d="M40 90 h30 v8 h-30 z" fill="#fff" stroke="#0074e2" stroke-width="1.5"/><text x="55" y="118" font-size="10" text-anchor="middle" fill="#0074e2">리벳 게이지</text><circle cx="200" cy="40" r="16" fill="#198100"/><path d="M192 40 l6 6 l10 -12" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><text x="120" y="140" font-size="12" text-anchor="middle" fill="#198100" font-weight="bold">검사 · FOD 점검 · 기록</text></svg>`
 };
 
 /* ===================== 기본 데이터 (파일을 못 읽을 때 사용) ===================== */
 const H = 3600e3;
-const FALLBACK_TASKS = [{"id": "t1", "title": "드럼세탁기 잔여물(배수) 필터 청소", "model": "예시: 삼성 드럼세탁기 (구형 모델 기준)", "freq": "매뉴얼 권장 주기: 연 2~3회", "refs": [{"label": "원문 매뉴얼 (Samsung S621, p.12)", "url": "https://www.manualslib.com/manual/147723/Samsung-S621.html?page=12"}, {"label": "원문 매뉴얼 (Samsung Q1235S, p.16)", "url": "https://www.manualslib.com/manual/201954/Samsung-Q1235s.html?page=16"}], "steps": [{"id": "s1", "title": "전원 분리 및 냉각 대기", "caution": "warning", "ref": "안전 주의사항", "illu": "plug", "photos": [], "body": "전원 플러그를 콘센트에서 뽑는다.\n고온 세탁 직후라면 내부 물이 뜨거우므로 충분히 식은 뒤 작업한다."}, {"id": "s2", "title": "하단 필터 커버 열기", "caution": null, "ref": "세탁기 관리 > 잔여물 필터 청소", "illu": "cover", "photos": [], "body": "세탁기 앞면 아래쪽의 필터 커버(베이스 커버)를 연다.\n모델에 따라 동전이나 일자 드라이버로 홈을 눌러 연다."}, {"id": "s3", "title": "비상 배수로 잔수 빼기", "caution": "caution", "ref": "비상 배수 방법 참조", "illu": "drain", "photos": [], "body": "바닥에 수건과 납작한 용기를 받친다.\n비상 배수 캡(또는 호스 마개)을 왼쪽으로 돌려 남은 물을 모두 뺀다.\n물이 많으면 용기가 넘치지 않게 여러 번 나눠 받는다."}, {"id": "s4", "title": "필터 캡 분리", "caution": null, "ref": "세탁기 관리 > 잔여물 필터 청소", "illu": "cap", "photos": [], "body": "잔수를 다 뺀 뒤 필터 캡을 반시계 방향으로 돌려 빼낸다."}, {"id": "s5", "title": "필터 세척 및 펌프 확인", "caution": null, "ref": "세탁기 관리 > 잔여물 필터 청소", "illu": "clean", "photos": [], "body": "필터에 걸린 실밥, 동전, 머리카락 등 이물질을 물로 씻어낸다.\n필터 안쪽의 배수 펌프 날개가 이물질로 막혀 있지 않은지 확인한다."}, {"id": "s6", "title": "재조립 및 누수 확인", "caution": "caution", "ref": "세탁기 관리 > 잔여물 필터 청소", "illu": "close", "photos": [], "body": "필터 캡을 시계 방향으로 끝까지 잠그고 비상 배수 마개를 닫은 뒤 커버를 닫는다.\n헹굼 코스를 한 번 돌려 필터 주변에 물이 새지 않는지 확인한다."}]}];
-const FALLBACK_SYN = [["필터 캡", "필터 마개", "캡", "마개", "뚜껑"], ["잔수", "남은 물", "물", "배수", "물빼기"], ["커버", "덮개", "베이스 커버", "하단 커버"], ["전원", "플러그", "코드", "콘센트"], ["누수", "물 샘", "새다", "샌다", "새요"], ["펌프", "날개", "프로펠러", "임펠러"], ["공구", "드라이버", "도구", "동전"], ["세척", "청소", "씻기", "닦기"], ["분리", "빼기", "탈거", "풀기"], ["조립", "장착", "잠그기", "끼우기"], ["안 돌아", "안돌아", "꽉 끼", "빡빡", "안 열려", "안열려"], ["뜨거", "고온", "온도", "식"]];
+const FALLBACK_TASKS = [{"id": "t1", "title": "동체 외판(스킨) 손상 부위 판금 교체 — 리벳 제거·신품 장착", "model": "예시: 민항기 알루미늄 동체 외판 (알클래드 2024-T3 기준)", "freq": "적용 시점: 손상이 SRM 허용 한계를 넘어 수리 대신 교체가 지정된 경우", "refs": [{"label": "FAA-H-8083-31B 항공정비사 핸드북–기체, 4장 금속 구조 수리", "url": "https://www.faa.gov/regulations_policies/handbooks_manuals/aviation"}, {"label": "FAA AC 43.13-1B 4장 4절 금속 수리 절차 (4-57 리벳 작업)", "url": "https://www.faa.gov/airports/resources/advisory_circulars/index.cfm/go/document.information/documentNumber/43.13-1B"}], "steps": [{"id": "s1", "title": "작업 준비 · 안전 조치", "caution": "warning", "ref": "AMM 20장 표준 작업 / SRM 51장 일반 주의사항", "illu": "safety", "photos": [], "body": "작업지시서(Task Card)와 해당 기종 SRM·AMM 절차를 먼저 확인한다.\n항공기 접지, 전원 OFF 및 태그 아웃. 연료·산소 계통 인접 구역이면 해당 계통 안전 조치를 먼저 한다.\n보안경·귀마개·장갑 착용. 드릴 칩이 날리는 구역에는 다른 작업자를 두지 않는다."}, {"id": "s2", "title": "손상 평가 · 교체 판정", "caution": null, "ref": "FAA-H-8083-31B 4장 손상 검사·분류 / SRM 허용 손상 한계", "illu": "assess", "photos": [], "body": "손상 크기·깊이·위치를 측정하고 균열·부식 여부를 확인한다. 필요하면 NDI(와전류·침투탐상)를 의뢰한다.\nSRM의 허용 손상 한계(Allowable Damage)와 비교해 무시 가능 / 수리 / 교체 중 어디인지 판정한다.\n교체로 판정되면 교체 범위(패널 경계, 리벳 열)를 SRM 도면에서 확정하고 사진을 남긴다."}, {"id": "s3", "title": "접근 확보 · 주변 보호", "caution": null, "ref": "AMM 해당 구역 접근 절차 (예: 53장 동체)", "illu": "access", "photos": [], "body": "인접 페어링·패널·내장재를 제거해 작업 부위 안팎 양쪽에 접근할 수 있게 한다.\n내부 배선·배관·장비는 테이프와 보호 커버로 덮고, 드릴 칩이 떨어지지 않도록 흡입기 또는 받침을 준비한다.\n제거한 부품과 패스너는 위치를 표시해 보관한다."}, {"id": "s4", "title": "기존 리벳 제거", "caution": "caution", "ref": "FAA-H-8083-31B 4장 리벳 제거(Removal of Rivets)", "illu": "drill", "photos": [], "body": "리벳 머리 중심을 센터펀치로 찍고, 리벳 생크보다 한 치수 작은 드릴로 머리 두께만큼만 드릴한다.\n핀 펀치로 머리를 떼어 낸 뒤, 반대편에 백업 블록을 대고 생크를 밀어낸다.\n드릴이 생크를 관통하거나 홀이 커지지 않도록 한다. 홀이 커진 곳은 표시해 두고 다음 단계에서 처리한다."}, {"id": "s5", "title": "손상 부품 탈거 · 홀과 하부 구조 점검", "caution": null, "ref": "SRM 51장 부식 처리 / 홀 상태 검사", "illu": "inspect", "photos": [], "body": "손상 외판을 떼어 내고 스트링어·프레임 등 하부 구조에 손상이나 부식이 없는지 확인한다.\n기존 홀을 핀 게이지로 점검한다. 길쭉하거나 커진 홀은 SRM 지정 오버사이즈 리벳 홀로 가공한다.\n부식은 SRM 지정 방법으로 제거하고 처리 후 두께가 한계 이내인지 확인한다."}, {"id": "s6", "title": "교체 부품 제작 · 가공", "caution": null, "ref": "AC 43.13-1B 4-53 대체 알루미늄 선정 / 4-54~56 성형", "illu": "fabricate", "photos": [], "body": "SRM이 지정한 재질·두께(예: 2024-T3 알클래드)로 기존 부품과 같은 결 방향으로 재단한다.\n굽힘이 있으면 최소 굽힘 반경과 세트백을 계산해 성형한다.\n모서리는 둥글게 다듬고 모든 절단면을 디버링한다. 긁힘·찍힘은 응력 집중을 만들므로 남기지 않는다."}, {"id": "s7", "title": "홀 가공 · 클레코 가고정", "caution": null, "ref": "AC 43.13-1B 4-57 리벳 간격·연거리", "illu": "cleco", "photos": [], "body": "신품을 맞대고 기존 홀을 따라 파일럿 드릴 후 최종 치수로 확공한다. 새 홀은 원래 구조와 같은 피치·연거리를 따른다.\n기준이 없을 때의 최소값: 연거리 2D 이상, 단열 리벳 간격 3D 이상 (D = 리벳 지름).\n2~3홀마다 클레코로 가고정해 틈새와 맞물림을 확인한 뒤, 분리해 양쪽 접합면을 디버링한다."}, {"id": "s8", "title": "부식 방지 처리 · 실란트 도포", "caution": "caution", "ref": "SRM 51장 표면 처리·실링 / AMM 20장", "illu": "seal", "photos": [], "body": "가공면과 홀 주변을 세척하고 SRM 지정 화성 피막(알로다인) 처리 후 프라이머를 도포한다.\n접합면(페잉 서피스)에 지정 실란트를 바른다. 실란트 작업 가능 시간 안에 리벳 작업을 끝낸다.\n실란트가 홀 안으로 과하게 들어가지 않도록 한다."}, {"id": "s9", "title": "리벳 장착", "caution": "caution", "ref": "AC 43.13-1B 4-57 리벳 작업 / FAA-H-8083-31B 4장 리벳 설치", "illu": "rivet", "photos": [], "body": "리벳 종류·지름은 SRM 지정을 따른다. 일반 기준은 지름 ≈ 접합 판 중 두꺼운 쪽 두께의 3배, 길이 = 그립 + 1.5D.\n버킹바를 리벳 축에 직각으로 밀착하고 리벳건으로 성형한다. 숍 헤드 기준: 지름 1.5D, 높이 0.5D.\n블라인드 리벳은 제작사 승인이 있을 때만 쓴다. 변형·균열·기울어진 리벳은 즉시 제거하고 다시 장착한다."}, {"id": "s10", "title": "검사 · 마무리 · 기록", "caution": null, "ref": "AMM 20장 작업 후 검사 / 정비 기록 규정", "illu": "check", "photos": [], "body": "리벳 게이지로 머리 치수를 전수 검사하고, 판 사이 틈·들뜸·균열이 없는지 확인한다.\n넘친 실란트를 정리하고 지정 도장을 한다. 보호 커버를 걷고 FOD(칩·공구·패스너) 점검을 한다.\n작업 카드·테크 로그에 기록하고 검사원 서명(RII 해당 시)을 받는다. 제거한 패널·페어링을 원위치한다."}]}];
+const FALLBACK_SYN = [["리벳", "리베트", "rivet", "패스너"], ["숍 헤드", "숍헤드", "벅테일", "shop head", "성형 머리"], ["버킹바", "벅킹바", "bucking bar", "받침쇠"], ["클레코", "cleco", "가고정", "임시 고정"], ["홀", "구멍", "hole", "리벳 홀"], ["드릴", "드릴링", "확공", "천공"], ["연거리", "에지 디스턴스", "edge distance", "가장자리 거리"], ["피치", "리벳 간격", "간격", "spacing"], ["외판", "스킨", "skin", "판넬", "패널"], ["SRM", "구조수리매뉴얼", "구조 수리 매뉴얼", "수리 매뉴얼"], ["AMM", "정비매뉴얼", "정비 매뉴얼"], ["실란트", "씰란트", "sealant", "실링", "씰"], ["프라이머", "알로다인", "화성 피막", "방식 처리", "부식 방지"], ["디버링", "버", "burr", "모서리 다듬기"], ["부식", "corrosion", "녹"], ["균열", "크랙", "crack", "금"], ["허용 손상", "손상 한계", "allowable damage", "한계"], ["오버사이즈", "커진 홀", "길쭉한 홀", "홀이 커"], ["블라인드 리벳", "체리 리벳", "blind rivet"], ["NDI", "비파괴검사", "와전류", "침투탐상"], ["접근", "패널 제거", "페어링", "개방"], ["FOD", "이물질", "칩", "드릴 칩"], ["기록", "테크 로그", "작업 카드", "서명", "RII"], ["분리", "빼기", "탈거", "제거"], ["조립", "장착", "설치", "끼우기"], ["안 빠져", "안빠져", "안 나와", "꽉 끼", "안 들어가"]];
 function demoQuestions(){
   const now=Date.now();
   return [
-    {id:'q1',taskId:'t1',stepId:'s3',pos:'on',text:'잔수가 생각보다 많이 나오는데 몇 리터 정도 나오는 게 정상인가요? 용기 크기를 정하고 싶습니다.',author:'정비사 A',stopped:false,metoo:3,createdAt:now-30*H,photos:[],status:'applied',
-     answer:{text:'모델·상황에 따라 다르며 탈수 전에 멈춘 경우 수 리터 이상 나올 수 있음. 넓고 낮은 용기를 쓰고 여러 번 나눠 받을 것.',ref:'비상 배수 방법 참조',by:'감독자',at:now-20*H,photos:[]}},
-    {id:'q2',taskId:'t1',stepId:'s4',pos:'on',text:'필터 캡이 손으로 안 돌아갑니다. 공구 써도 되나요?',author:'정비사 B',stopped:true,metoo:1,createdAt:now-3*H,photos:[],status:'open'},
-    {id:'q3',taskId:'t1',stepId:'s1',pos:'on',text:'고온 세탁 후 얼마나 기다려야 하나요? 기준 시간이 있나요?',author:'정비사 C',stopped:false,metoo:2,createdAt:now-8*H,photos:[],status:'open'},
-    {id:'q4',taskId:'t1',stepId:'s5',pos:'after',text:'펌프 날개에 실이 감겨 있으면 그냥 빼도 되는지, 다른 절차가 있는지 궁금합니다.',author:'정비사 A',stopped:false,metoo:0,createdAt:now-1*H,photos:[],status:'answered',
-     answer:{text:'손으로 빠지면 제거. 날개가 손상됐거나 안 빠지면 작업 중지 후 서비스 의뢰.',ref:'세탁기 관리 > 잔여물 필터 청소',by:'감독자',at:now-0.5*H,photos:[]}}
+    {id:'q1',taskId:'t1',stepId:'s4',pos:'on',text:'리벳 머리를 드릴하다 생크까지 들어가서 홀이 조금 커진 것 같습니다. 그대로 같은 리벳을 써도 되나요?',author:'정비사 A',stopped:true,metoo:3,createdAt:now-30*H,photos:[],status:'applied',
+     answer:{text:'안 된다. 핀 게이지로 홀을 재고 SRM 지정 오버사이즈(다음 치수) 리벳 홀로 확공해 장착한다. 오버사이즈 한계를 넘으면 감독자에게 보고.',ref:'SRM 51장 홀 상태 검사 / FAA-H-8083-31B 4장 리벳 제거',by:'감독자',at:now-20*H,photos:[]}},
+    {id:'q2',taskId:'t1',stepId:'s9',pos:'on',text:'버킹바를 대기 어려운 위치인데 블라인드 리벳으로 바꿔도 되나요?',author:'정비사 B',stopped:true,metoo:1,createdAt:now-3*H,photos:[],status:'open'},
+    {id:'q3',taskId:'t1',stepId:'s8',pos:'on',text:'실란트를 바른 뒤 리벳 작업까지 시간이 얼마나 남나요? 중간에 쉬어도 되는지 궁금합니다.',author:'정비사 C',stopped:false,metoo:2,createdAt:now-8*H,photos:[],status:'open'},
+    {id:'q4',taskId:'t1',stepId:'s7',pos:'after',text:'기존 홀과 신품 홀이 살짝 어긋납니다. 드릴로 살짝 밀어서 맞춰도 되나요?',author:'정비사 A',stopped:false,metoo:0,createdAt:now-1*H,photos:[],status:'answered',
+     answer:{text:'홀을 비스듬히 밀어 넓히면 안 된다. 클레코를 풀고 부품을 다시 맞춘 뒤 파일럿 홀부터 다시 뚫는다. 그래도 안 맞으면 작업 중지 후 보고.',ref:'AC 43.13-1B 4-57 리벳 홀 가공',by:'감독자',at:now-0.5*H,photos:[]}}
   ];
 }
 
 /* ===================== 저장 ===================== */
-const KEY='manual-flow-qa-v2';
+const KEY='manual-flow-qa-v3';
 let S, FILE_TASKS=null, SYN=FALLBACK_SYN, REPO_MODELS=[], FILE_LINKS=[], LOCAL_MODELS=[];
 const clone=o=>JSON.parse(JSON.stringify(o));
 function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){ toast('저장 공간이 부족합니다. 사진 수를 줄이거나 JSON으로 내보내 주세요.'); } }
@@ -269,6 +287,7 @@ function readImages(files){
   }))).then(a=>a.filter(Boolean));
 }
 function pickImages(){return new Promise(res=>{const p=$('#filePick');p.value='';p.onchange=()=>readImages(p.files).then(res);p.click();});}
+function bodyHTML(b){const lines=String(b||'').split(/\n+/).map(x=>x.trim()).filter(Boolean);return lines.length>1?`<ul class="body">${lines.map(l=>`<li>${esc(l)}</li>`).join('')}</ul>`:`<div class="body">${esc(lines[0]||'')}</div>`;}
 function mediaHTML(photos,illu,opts={}){
   const items=[];
   if(illu&&ILLU[illu]) items.push(`<figure><div data-illu="${illu}">${ILLU[illu]}</div><figcaption>예시 그림</figcaption></figure>`);
@@ -310,7 +329,7 @@ function renderTech(){
     h+=`<div class="step ${s.caution||''}" id="step-${s.id}">
       <div class="step-top"><div class="num">${i+1}</div><div style="flex:1">
         <h3>${s.caution?`<span class="tag ${s.caution}">${s.caution==='warning'?'WARNING':'CAUTION'}</span>`:''}${esc(s.title)}</h3>
-        <div class="body">${esc(s.body)}</div>
+        ${bodyHTML(s.body)}
         <div style="margin-top:4px"><span class="tag ref">근거: ${esc(s.ref)}</span></div>
       </div></div>
       ${mediaHTML(s.photos,s.illu)}
@@ -453,7 +472,7 @@ function answerModal(id){
   const q=S.questions.find(x=>x.id===id); draftPhotos=q.answer?[...q.answer.photos]:[];
   openModal(`<h3>답변 작성</h3><div class="meta">Q. ${esc(q.text)}</div>${mediaHTML(q.photos)}
     <label class="f">답변</label><textarea id="aText">${esc(q.answer?.text||'')}</textarea>
-    <label class="f">근거 매뉴얼 참조 (필수)</label><input type="text" id="aRef" value="${esc(q.answer?.ref||'')}" placeholder="예: 세탁기 관리 > 잔여물 필터 청소">
+    <label class="f">근거 매뉴얼 참조 (필수)</label><input type="text" id="aRef" value="${esc(q.answer?.ref||'')}" placeholder="예: SRM 51장 리벳 장착 / AC 43.13-1B 4-57">
     <label class="f">사진 첨부</label><button class="btn" id="aPhotoBtn">📷 사진 선택</button><div class="thumbs" id="aThumbs">${draftPhotos.map(x=>`<img src="${x.src}">`).join('')}</div>
     <div class="row" style="justify-content:flex-end"><button class="btn" data-close>취소</button><button class="btn primary" id="aSubmit">답변 저장 (승인 대기로)</button></div>`);
   $('#aPhotoBtn').onclick=()=>pickImages().then(p=>{draftPhotos.push(...p);$('#aThumbs').innerHTML=draftPhotos.map(x=>`<img src="${x.src}">`).join('');});
@@ -467,7 +486,7 @@ function answerModal(id){
 function manualModal(id){
   const q=S.questions.find(x=>x.id===id);
   openModal(`<h3>원문 참조로 처리</h3><div class="meta">Q. ${esc(q.text)}</div>
-    <label class="f">참조할 매뉴얼 위치</label><input type="text" id="mRef" placeholder="예: 비상 배수 방법 참조">
+    <label class="f">참조할 매뉴얼 위치</label><input type="text" id="mRef" placeholder="예: FAA-H-8083-31B 4장 리벳 제거">
     <div class="row" style="justify-content:flex-end"><button class="btn" data-close>취소</button><button class="btn primary" id="mSubmit">처리</button></div>`);
   $('#mSubmit').onclick=()=>{const ref=$('#mRef').value.trim(); if(!ref){toast('매뉴얼 위치를 입력해 주세요');return;}
     q.answer={text:'매뉴얼 원문 참조',ref,by:'감독자',at:Date.now(),photos:[]}; q.status='manual'; save();closeModal();render();};
@@ -578,7 +597,7 @@ function renderSide(){
   $('#vside').innerHTML=`<h4>① 시점</h4><div class="meta">원하는 각도로 돌린 뒤 저장하세요. 정비사가 3D를 열면 이 각도로 시작합니다.</div>
     <div class="row"><button class="btn" id="vSaveCam">📌 이 시점 저장</button>${link?.camera?`<button class="btn" id="vClearCam">기본 시점으로</button>`:''}</div>
     <h4>② 표시 핀</h4><div class="meta">이름을 적고 [핀 찍기]를 켠 다음 모델을 누르세요.</div>
-    <input type="text" id="pinLabel" placeholder="예: 필터 캡" style="margin-top:6px" value="${esc(V.pinLabel||'')}">
+    <input type="text" id="pinLabel" placeholder="예: 리벳 열" style="margin-top:6px" value="${esc(V.pinLabel||'')}">
     <div class="row"><button class="btn ${V.pinMode?'on-mode':''}" id="vPinMode">${V.pinMode?'핀 찍는 중… (끄기)':'📍 핀 찍기'}</button></div>
     <div style="margin-top:6px">${(V.pins||[]).map((p,i)=>`<div class="pinrow"><span>📍 ${esc(p.label)}</span><button class="btn cmini" data-delpin="${i}">삭제</button></div>`).join('')||'<div class="meta">핀 없음</div>'}</div>
     <div class="row"><button class="btn primary" id="vSavePins">💾 핀 저장</button></div>
@@ -655,7 +674,7 @@ function answer(q){
   botSay(h,true);
   if(warn){}
 }
-$('#chatFab').onclick=()=>{ const c=$('#chat'); c.classList.toggle('show'); if(c.classList.contains('show')&&!$('#chatLog').children.length) botSay('무엇이 궁금하세요? 매뉴얼 단계와 승인된 보충설명에서 찾아 드릴게요.\n예: "필터 캡이 안 돌아가요", "물이 얼마나 나와요?"'); $('#chatIn').focus(); };
+$('#chatFab').onclick=()=>{ const c=$('#chat'); c.classList.toggle('show'); if(c.classList.contains('show')&&!$('#chatLog').children.length) botSay('무엇이 궁금하세요? 매뉴얼 단계와 승인된 보충설명에서 찾아 드릴게요.\n예: "리벳 홀이 커졌어요", "숍 헤드 크기는?"'); $('#chatIn').focus(); };
 $('#chatClose').onclick=()=>$('#chat').classList.remove('show');
 $('#chatForm').onsubmit=e=>{ e.preventDefault(); const v=$('#chatIn').value.trim(); if(!v) return; meSay(v); $('#chatIn').value=''; setTimeout(()=>answer(v),150); };
 $('#chatLog').addEventListener('click',e=>{
