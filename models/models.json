@@ -9,6 +9,11 @@
       "id": "figure-jump",
       "name": "점프 피규어 (3cm)",
       "file": "figure_jump_3cm.stl"
+    },
+    {
+      "id": "fitting-v3",
+      "name": "피팅 v3",
+      "file": "fitting-v3.stl"
     }
   ],
   "links": []
